@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { LOCAL_PROFILE_ID, computeStaminaRegen } from "@/lib/player";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [profile, wallet, deckCount, cardCount] = await Promise.all([
     prisma.profile.findUnique({ where: { id: LOCAL_PROFILE_ID } }),
