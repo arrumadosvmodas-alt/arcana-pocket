@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite has no native enum support; Element/Rarity are validated as string
+// unions in the application layer (see src/lib/engine/cards.ts).
+
+model Profile {
+  id          String   @id @default(cuid())
+  displayName String
+  createdAt   DateTime @default(now())
+
+  wallet           Wallet?
+  playerCards      PlayerCard[]
+  decks            Deck[]
+  packOpenings     PackOpening[]
+  purchases        PurchaseHistory[]
+  playerMissions   PlayerMission[]
+}
+
+// Conceptual card identity, versioned like the original plan's card_definitions/card_versions split
+model CardDefinition {
+  id        String   @id @default(cuid())
+  name      String
+  element   String
+  rarity    String
+  cost      Int
+  attack    Int
+  health    Int
+  text      String
+  createdAt DateTime @default(now())
+
+  playerCards PlayerCard[]
+  deckCards   DeckCard[]
+}
+
+model PlayerCard {
+  id               String   @id @default(cuid())
+  profileId        String
+  cardDefinitionId String
+  quantity         Int      @default(0)
+
+  profile        Profile        @relation(fields: [profileId], references: [id])
+  cardDefinition CardDefinition @relation(fields: [cardDefinitionId], references: [id])
+
+  @@unique([profileId, cardDefinitionId])
+}
+
+model Deck {
+  id        String   @id @default(cuid())
+  profileId String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile    @relation(fields: [profileId], references: [id])
+  deckCards DeckCard[]
+}
+
+model DeckCard {
+  id               String @id @default(cuid())
+  deckId           String
+  cardDefinitionId String
+  quantity         Int    @default(1)
+
+  deck           Deck           @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  cardDefinition CardDefinition @relation(fields: [cardDefinitionId], references: [id])
+
+  @@unique([deckId, cardDefinitionId])
+}
+
+model Wallet {
+  id                String   @id @default(cuid())
+  profileId         String   @unique
+  coins             Int      @default(500)
+  gems              Int      @default(0)
+  stamina           Int      @default(6)
+  maxStamina        Int      @default(6)
+  staminaUpdatedAt  DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id])
+}
+
+// Append-only audit log for pack openings, mirroring the original plan's ledger/auditoria requirement
+model PackOpening {
+  id        String   @id @default(cuid())
+  profileId String
+  seed      String
+  cardIds   String
+  createdAt DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id])
+}
+
+// Shop packages available for purchase with premium currency (gems)
+model ShopPackage {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  cardsCount  Int      @default(5)
+  gemPrice    Int
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  purchases PurchaseHistory[]
+}
+
+// Purchase transaction log (append-only)
+model PurchaseHistory {
+  id              String   @id @default(cuid())
+  profileId       String
+  shopPackageId   String
+  gemsSpent       Int
+  cardIds         String
+  createdAt       DateTime @default(now())
+
+  profile      Profile      @relation(fields: [profileId], references: [id])
+  shopPackage  ShopPackage  @relation(fields: [shopPackageId], references: [id])
+}
+
+// Daily missions available for all players
+model Mission {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  target      Int      @default(1)
+  coinsReward Int      @default(100)
+  gemsReward  Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  playerMissions PlayerMission[]
+}
+
+// Player mission progress (resets daily)
+model PlayerMission {
+  id        String   @id @default(cuid())
+  profileId String
+  missionId String
+  progress  Int      @default(0)
+  completed Boolean  @default(false)
+  claimedAt DateTime?
+  date      String // YYYY-MM-DD for daily reset
+
+  profile Profile @relation(fields: [profileId], references: [id])
+  mission Mission @relation(fields: [missionId], references: [id])
+
+  @@unique([profileId, missionId, date])
+}

@@ -1,0 +1,17 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { prisma } from "@/lib/db";
+
+const updateSchema = z.object({ isActive: z.boolean() });
+
+export async function PATCH(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { isActive } = updateSchema.parse(await _req.json());
+
+  const mission = await prisma.mission.update({
+    where: { id },
+    data: { isActive },
+  });
+
+  return NextResponse.json(mission);
+}
