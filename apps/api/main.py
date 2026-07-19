@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# Permite que o frontend da Vercel acesse a API do Railway
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "https://arcana-pocket.vercel.app"],
@@ -11,8 +12,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/health")
-async def health():
+@app.get("/")
+def root():
     return {"status": "ok"}
-
-# PvP matchmaking endpoints (próximo passo)
