@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 const updateSchema = z.object({ isActive: z.boolean() });
 
 export async function PATCH(_req: Request, { params }: { params: Promise<{ id: string }> }) {
