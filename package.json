@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/adapt-prisma-schema.js && prisma generate",
+    "prebuild": "node scripts/adapt-prisma-schema.js && prisma generate && prisma migrate deploy",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
