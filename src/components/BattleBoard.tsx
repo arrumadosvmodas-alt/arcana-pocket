@@ -59,7 +59,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
     next = endRound(next);
     setState(next);
     if (next.status !== "ongoing") {
-      await notifyBattleEnd(next.status);
+      notifyBattleEnd(next.status);
       onFinish(next);
     }
   }
