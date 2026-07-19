@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { LOCAL_PROFILE_ID, computeStaminaRegen } from "@/lib/player";
 import { drawPack } from "@/lib/engine/packs";
 import { incrementMissionProgress } from "@/lib/missions";
+import type { CardDefinition } from "@prisma/client";
 
 export async function POST() {
   try {
@@ -42,7 +43,7 @@ export async function POST() {
       });
 
       const cards = await tx.cardDefinition.findMany({ where: { id: { in: drawnIds } } });
-      const cardsById = new Map(cards.map((c) => [c.id, c]));
+      const cardsById = new Map(cards.map((c: CardDefinition) => [c.id, c]));
       const orderedCards = drawnIds.map((id) => cardsById.get(id)!);
 
       return { cards: orderedCards, staminaRemaining: regen.stamina - 1 };

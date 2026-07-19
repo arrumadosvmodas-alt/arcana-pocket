@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL", "file:./prisma/dev.db")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // SQLite has no native enum support; Element/Rarity are validated as string

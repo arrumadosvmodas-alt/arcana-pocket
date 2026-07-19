@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { LOCAL_PROFILE_ID } from "@/lib/player";
 import { validateDeckStructure } from "@/lib/engine/rules";
 import { incrementMissionProgress } from "@/lib/missions";
+import type { PlayerCard } from "@prisma/client";
 
 const deckInputSchema = z.object({
   name: z.string().min(1).max(60),
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
   const ownership = await prisma.playerCard.findMany({
     where: { profileId: LOCAL_PROFILE_ID, cardDefinitionId: { in: body.cards.map((c) => c.cardDefinitionId) } },
   });
-  const ownedById = new Map(ownership.map((o) => [o.cardDefinitionId, o.quantity]));
+  const ownedById = new Map(ownership.map((o: PlayerCard) => [o.cardDefinitionId, o.quantity]));
 
   for (const c of body.cards) {
     const owned = ownedById.get(c.cardDefinitionId) ?? 0;

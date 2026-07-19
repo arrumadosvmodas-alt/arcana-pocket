@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { LOCAL_PROFILE_ID } from "@/lib/player";
 import { drawPack } from "@/lib/engine/packs";
 import { z } from "zod";
+import type { CardDefinition } from "@prisma/client";
 
 const buySchema = z.object({ shopPackageId: z.string() });
 
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
       });
 
       const cards = await tx.cardDefinition.findMany({ where: { id: { in: uniqueDrawn } } });
-      const cardsById = new Map(cards.map((c) => [c.id, c]));
+      const cardsById = new Map(cards.map((c: CardDefinition) => [c.id, c]));
       const orderedCards = uniqueDrawn.map((id) => cardsById.get(id)!);
 
       return { cards: orderedCards, gemsRemaining: wallet.gems - pkg.gemPrice };

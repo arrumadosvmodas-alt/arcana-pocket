@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { LOCAL_PROFILE_ID } from "@/lib/player";
+import type { PlayerMission, Mission } from "@prisma/client";
 
 export async function GET() {
   const today = new Date().toISOString().split("T")[0];
@@ -12,7 +13,7 @@ export async function GET() {
   });
 
   return NextResponse.json(
-    playerMissions.map((pm) => ({
+    playerMissions.map((pm: PlayerMission & { mission: Mission }) => ({
       id: pm.id,
       missionId: pm.mission.id,
       title: pm.mission.title,
