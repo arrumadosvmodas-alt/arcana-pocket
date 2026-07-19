@@ -75,7 +75,7 @@ export default function ShopPage() {
             </div>
             <button
               onClick={() => buyPackage(pkg)}
-              disabled={loading || (profile && profile.gems < pkg.gemPrice)}
+              disabled={loading || !profile || profile.gems < pkg.gemPrice}
               className="w-full rounded-full bg-[var(--accent)] py-2 text-sm font-semibold text-white disabled:opacity-40"
             >
               {loading ? "Comprando..." : "Comprar"}
