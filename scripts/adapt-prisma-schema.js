@@ -4,9 +4,10 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const schemaPath = path.join(__dirname, '../prisma/schema.prisma');
-let schema = fs.readFileSync(schemaPath, 'utf-8');
+const prismaDir = path.join(__dirname, '../.prisma');
 
 let dbUrl = process.env.DATABASE_URL || '';
 
@@ -29,6 +30,9 @@ if (!dbUrl) {
 
 const isPostgres = dbUrl.startsWith('postgresql://') || dbUrl.startsWith('postgres://');
 
+// Read current schema
+let schema = fs.readFileSync(schemaPath, 'utf-8');
+
 if (isPostgres) {
   // Use PostgreSQL for production
   schema = schema.replace(
@@ -46,4 +50,25 @@ if (isPostgres) {
 }
 
 fs.writeFileSync(schemaPath, schema);
+
+// Clear Prisma cache to force regeneration
+if (fs.existsSync(prismaDir)) {
+  try {
+    const files = fs.readdirSync(prismaDir);
+    files.forEach(file => {
+      const filePath = path.join(prismaDir, file);
+      if (fs.lstatSync(filePath).isDirectory()) {
+        // Remove directory recursively
+        fs.rmSync(filePath, { recursive: true, force: true });
+      } else {
+        fs.unlinkSync(filePath);
+      }
+    });
+    console.log('✓ Cleared Prisma cache');
+  } catch (e) {
+    console.warn('⚠ Could not clear Prisma cache:', e.message);
+  }
+}
+
+console.log('✓ Schema adaptation complete');
 
