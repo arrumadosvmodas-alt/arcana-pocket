@@ -12,7 +12,9 @@ const LINKS = [
   { href: "/missions", label: "Missões" },
   { href: "/collection", label: "Coleção" },
   { href: "/decks", label: "Decks" },
-  { href: "/battle", label: "Batalha" },
+  { href: "/battle", label: "PvE" },
+  { href: "/pvp", label: "⚔️ PvP" },
+  { href: "/ranking", label: "🏆" },
   { href: "/admin", label: "🔧" },
 ];
 

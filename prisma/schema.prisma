@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // SQLite has no native enum support; Element/Rarity are validated as string
@@ -22,6 +21,7 @@ model Profile {
   packOpenings     PackOpening[]
   purchases        PurchaseHistory[]
   playerMissions   PlayerMission[]
+  rating           PlayerRating?
 }
 
 // Conceptual card identity, versioned like the original plan's card_definitions/card_versions split
@@ -153,4 +153,48 @@ model PlayerMission {
   mission Mission @relation(fields: [missionId], references: [id])
 
   @@unique([profileId, missionId, date])
+}
+
+// Player rating/Elo for PvP ranking
+model PlayerRating {
+  id        String   @id @default(cuid())
+  profileId String   @unique
+  rating    Int      @default(1200) // Elo starting point
+  wins      Int      @default(0)
+  losses    Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id])
+}
+
+// Matchmaking queue and active battles
+model BattleMatch {
+  id              String   @id @default(cuid())
+  player1Id       String   // Player looking for match
+  player2Id       String?  // Opponent (null if waiting)
+  player1DeckId   String
+  player2DeckId   String?
+  status          String   @default("waiting") // waiting, active, finished
+  battleState     String?  // JSON of current battle state
+  winner          String?  // player1Id or player2Id
+  createdAt       DateTime @default(now())
+  startedAt       DateTime?
+  finishedAt      DateTime?
+
+  battleResults BattleResult[]
+}
+
+// Battle results and history
+model BattleResult {
+  id          String   @id @default(cuid())
+  battleId    String
+  winnerId    String
+  loserId     String
+  player1Elo  Int      // Elo before battle
+  player2Elo  Int      // Elo before battle
+  eloChange   Int      // How much Elo changed
+  duration    Int      // Seconds
+  createdAt   DateTime @default(now())
+
+  battle BattleMatch @relation(fields: [battleId], references: [id], onDelete: Cascade)
 }
