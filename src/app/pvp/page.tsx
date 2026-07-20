@@ -85,7 +85,7 @@ function PvPContent() {
   function pollForMatch(id: string) {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/battles/${id}`);
+        const res = await fetch(`/api/battles/get?id=${id}`);
         if (res.ok) {
           const data = await res.json();
           if (data.status === "active") {
