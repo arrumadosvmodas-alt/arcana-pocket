@@ -1,28 +1,18 @@
 import { Element, Rarity } from "@/lib/engine/cards";
 
-// Detailed, cute, sticker-style creature illustrations for each element.
-// Rarity scales the complexity by adding visual elements (wings, crowns, horns, extra sparkles).
+// Futuristic, glowing sci-fi elemental creature illustrations.
+// Rarity scales the complexity by adding wings, crowns, horns, and extra glow effects.
 
 function CuteBlush({ cx, cy }: { cx: number; cy: number }) {
-  return (
-    <>
-      <ellipse cx={cx - 10} cy={cy} rx="5" ry="3" fill="#ff7096" opacity="0.6" />
-      <ellipse cx={cx + 10} cy={cy} rx="5" ry="3" fill="#ff7096" opacity="0.6" />
-    </>
-  );
+  return null; // Removed cartoon blush for a cleaner, high-tech creature design
 }
 
-function CuteEyes({ cx, cy }: { cx: number; cy: number }) {
+function CuteEyes({ cx, cy, color = "#00f5ff" }: { cx: number; cy: number; color?: string }) {
   return (
     <>
-      {/* Eye Left */}
-      <circle cx={cx - 11} cy={cy} r="6.5" fill="#14172a" />
-      <circle cx={cx - 13} cy={cy - 2} r="2.2" fill="white" />
-      <circle cx={cx - 10} cy={cy + 1} r="1.0" fill="white" />
-      {/* Eye Right */}
-      <circle cx={cx + 11} cy={cy} r="6.5" fill="#14172a" />
-      <circle cx={cx + 9} cy={cy - 2} r="2.2" fill="white" />
-      <circle cx={cx + 12} cy={cy + 1} r="1.0" fill="white" />
+      {/* Sleek glowing energy eyes */}
+      <ellipse cx={cx - 10} cy={cy} rx="5" ry="2" fill={color} style={{ filter: `drop-shadow(0 0 3px ${color})` }} />
+      <ellipse cx={cx + 10} cy={cy} rx="5" ry="2" fill={color} style={{ filter: `drop-shadow(0 0 3px ${color})` }} />
     </>
   );
 }
@@ -31,7 +21,7 @@ function FireBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
     <g>
       {/* Background Glow */}
-      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      <circle cx="50" cy="50" r="32" fill="#ff9f1c" opacity="0.25" style={{ filter: 'blur(4px)' }} />
       
       {/* Fire Tail / Body Base */}
       <path d="M35 65 C25 65 20 50 30 40 C35 35 45 42 45 50" fill="#ff9f1c" />
@@ -39,11 +29,8 @@ function FireBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
       {/* Fire Wings/Spikes for RARE/EPIC */}
       {spikes && (
         <g fill="#e71d36">
-          {/* Left Wing */}
           <path d="M25 45 C10 40 8 20 22 25 C15 35 22 40 25 45Z" />
-          {/* Right Wing */}
           <path d="M75 45 C90 40 92 20 78 25 C85 35 78 40 75 45Z" />
-          {/* Flame Crown */}
           <path d="M42 22 L50 8 L58 22 L50 18Z" />
         </g>
       )}
@@ -57,11 +44,7 @@ function FireBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
       <path d="M64 38 L68 26 L56 34Z" fill="#e71d36" />
 
       {/* Face details */}
-      <CuteBlush cx={50} cy={55} />
-      <CuteEyes cx={50} cy={50} />
-      
-      {/* Cute Smile */}
-      <path d="M47 57 Q50 60 53 57" stroke="#14172a" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <CuteEyes cx={50} cy={50} color="#ffd166" />
       
       {/* Sparkles */}
       <circle cx="28" cy="28" r="2.5" fill="#ffd166" />
@@ -73,16 +56,13 @@ function FireBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
 function WaterBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
     <g>
-      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      <circle cx="50" cy="50" r="32" fill="#00b4d8" opacity="0.25" style={{ filter: 'blur(4px)' }} />
       
       {/* Water Wings / Fin Ears for RARE/EPIC */}
       {spikes && (
         <g fill="#4ea8de">
-          {/* Left Large Fin */}
           <path d="M26 48 C12 44 14 26 24 34 C20 42 24 46 26 48Z" />
-          {/* Right Large Fin */}
           <path d="M74 48 C88 44 86 26 76 34 C80 42 76 46 74 48Z" />
-          {/* Droplet Crown */}
           <circle cx="50" cy="14" r="4.5" />
           <path d="M50 14 L46 24 L54 24Z" />
         </g>
@@ -104,11 +84,7 @@ function WaterBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
       )}
 
       {/* Face details */}
-      <CuteBlush cx={50} cy={54} />
-      <CuteEyes cx={50} cy={48} />
-      
-      {/* Cute Open Mouth */}
-      <ellipse cx="50" cy="55" rx="3.5" ry="2" fill="#ff7096" />
+      <CuteEyes cx={50} cy={48} color="#00f5ff" />
       
       {/* Bubbles */}
       <circle cx="26" cy="30" r="3" fill="#caf0f8" opacity="0.8" />
@@ -121,12 +97,11 @@ function WaterBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
 function EarthBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
     <g>
-      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      <circle cx="50" cy="50" r="32" fill="#22c55e" opacity="0.25" style={{ filter: 'blur(4px)' }} />
       
       {/* Crystals/Flowers for RARE/EPIC */}
       {spikes && (
         <g fill="#ff7096">
-          {/* Blossom on head */}
           <circle cx="50" cy="20" r="5" />
           <circle cx="45" cy="16" r="4.5" />
           <circle cx="55" cy="16" r="4.5" />
@@ -134,7 +109,6 @@ function EarthBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
           <circle cx="55" cy="24" r="4.5" />
           <circle cx="50" cy="20" r="3" fill="#ffd166" />
           
-          {/* Crystal spikes on sides */}
           <polygon points="20,54 14,48 24,42" fill="#4ea8de" />
           <polygon points="80,54 86,48 76,42" fill="#4ea8de" />
         </g>
@@ -155,11 +129,7 @@ function EarthBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
       )}
 
       {/* Face details */}
-      <CuteBlush cx={50} cy={58} />
-      <CuteEyes cx={50} cy={52} />
-
-      {/* Mouth */}
-      <path d="M48 58 Q50 61 52 58" stroke="#14172a" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <CuteEyes cx={50} cy={52} color="#a7c957" />
     </g>
   );
 }
@@ -167,16 +137,13 @@ function EarthBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
 function AirBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
     <g>
-      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      <circle cx="50" cy="50" r="32" fill="#e0f2fe" opacity="0.25" style={{ filter: 'blur(4px)' }} />
       
       {/* Large Wings / Wind swirls for RARE/EPIC */}
       {spikes && (
         <g fill="#90e0ef">
-          {/* Fluffy Left Wing */}
           <path d="M28 45 C10 40 6 22 20 24 C14 34 22 40 28 45Z" opacity="0.9" />
-          {/* Fluffy Right Wing */}
           <path d="M72 45 C90 40 94 22 80 24 C86 34 78 40 72 45Z" opacity="0.9" />
-          {/* Feather Crown */}
           <path d="M50 22 C50 10 44 14 42 12 C44 20 48 22 50 22Z" fill="#00b4d8" />
           <path d="M50 22 C50 10 56 14 58 12 C56 20 52 22 50 22Z" fill="#00b4d8" />
         </g>
@@ -189,11 +156,7 @@ function AirBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
       <circle cx="50" cy="58" r="13" fill="#f8fafc" />
 
       {/* Face details */}
-      <CuteBlush cx={50} cy={52} />
-      <CuteEyes cx={50} cy={46} />
-      
-      {/* Joy Smile */}
-      <path d="M46 53 Q50 58 54 53" stroke="#14172a" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <CuteEyes cx={50} cy={46} color="#06b6d4" />
       
       {/* Sparkles */}
       <circle cx="28" cy="24" r="2" fill="#38bdf8" />
@@ -205,30 +168,23 @@ function AirBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
 function LightBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
     <g>
-      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      <circle cx="50" cy="50" r="32" fill="#ffd166" opacity="0.25" style={{ filter: 'blur(4px)' }} />
       
       {/* Fairy Wings & Halo for RARE/EPIC */}
       {spikes && (
         <g fill="#fff3b0">
-          {/* Left Wing */}
           <path d="M30 45 C12 36 18 16 26 26 C22 36 28 42 30 45Z" opacity="0.85" />
-          {/* Right Wing */}
           <path d="M70 45 C88 36 82 16 74 26 C78 36 72 42 70 45Z" opacity="0.85" />
-          {/* Halo */}
-          <ellipse cx="50" cy="16" rx="14" ry="4.5" fill="none" stroke="#ffd166" strokeWidth="3" />
+          <ellipse cx="50" cy="16" rx="14" ry="4.5" fill="none" stroke="#ffd166" strokeWidth="2.5" />
         </g>
       )}
 
       {/* Star Shape Head */}
       <polygon points="50,22 57,36 71,36 60,46 64,60 50,51 36,60 40,46 29,36 43,36" fill="#ffd166" />
-      <circle cx="50" cy="45" r="13" fill="#ffe3e0" opacity="0.9" />
+      <circle cx="50" cy="45" r="13" fill="#ffe3e0" opacity="0.95" />
 
       {/* Face details */}
-      <CuteBlush cx={50} cy={48} />
-      <CuteEyes cx={50} cy={42} />
-
-      {/* Shy Smile */}
-      <path d="M48 50 Q50 52 52 50" stroke="#14172a" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <CuteEyes cx={50} cy={42} color="#fbbf24" />
       
       {/* Magic Stars */}
       <polygon points="26,22 28,26 32,26 29,28 30,32 27,29 24,31 26,27 23,25 27,25" fill="#ffd166" />
@@ -240,16 +196,13 @@ function LightBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
 function ShadowBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
     <g>
-      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      <circle cx="50" cy="50" r="32" fill="#818cf8" opacity="0.25" style={{ filter: 'blur(4px)' }} />
       
       {/* Bat Wings & Shadow Crown for RARE/EPIC */}
       {spikes && (
         <g fill="#3d348b">
-          {/* Left Wing */}
           <path d="M30 46 C12 40 10 24 24 26 C16 34 26 40 30 46Z" />
-          {/* Right Wing */}
           <path d="M70 46 C88 40 90 24 76 26 C84 34 74 40 70 46Z" />
-          {/* Extra Spikes */}
           <path d="M42 20 L50 6 L58 20Z" fill="#240046" />
         </g>
       )}
@@ -262,20 +215,9 @@ function ShadowBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
       <path d="M34 38 L28 26 L42 34Z" fill="#3d348b" />
       <path d="M66 38 L72 26 L58 34Z" fill="#3d348b" />
 
-      {/* Face details */}
-      <CuteBlush cx={50} cy={56} />
-      
       {/* Evil / Mischievous Eyes (Glowing Magenta) */}
-      <circle cx="39" cy="48" r="6" fill="#e0aaff" />
-      <circle cx="39" cy="48" r="2.5" fill="#3d0066" />
-      <circle cx="41" cy="46" r="1" fill="white" />
-      
-      <circle cx="61" cy="48" r="6" fill="#e0aaff" />
-      <circle cx="61" cy="48" r="2.5" fill="#3d0066" />
-      <circle cx="59" cy="46" r="1" fill="white" />
-
-      {/* Mischievous Grin */}
-      <path d="M44 56 Q50 62 56 56" stroke="#14172a" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <ellipse cx="39" cy="48" rx="5" ry="2" fill="#e0aaff" style={{ filter: 'drop-shadow(0 0 3px #e0aaff)' }} />
+      <ellipse cx="61" cy="48" rx="5" ry="2" fill="#e0aaff" style={{ filter: 'drop-shadow(0 0 3px #e0aaff)' }} />
       
       {/* Ghost wisps */}
       <circle cx="22" cy="62" r="2" fill="#75629f" opacity="0.6" />
@@ -310,22 +252,24 @@ export function AlienEmblem({
   return (
     <svg viewBox="0 0 100 100" className={className} role="img" aria-label={`Criatura de elemento ${element}`}>
       <defs>
-        {/* SVG filter that generates a bold, sticker-like white outline */}
-        <filter id="sticker-outline" x="-20%" y="-20%" width="140%" height="140%">
-          <feMorphology in="SourceAlpha" result="dilated" operator="dilate" radius="3" />
-          <feFlood flood-color="white" result="flood" />
-          <feComposite in="flood" in2="dilated" operator="in" result="outline" />
+        {/* Glow filter for sci-fi holographic outline */}
+        <filter id={`hud-glow-${element}`} x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="blur" />
+          <feFlood flood-color={accent} result="color" />
+          <feComposite in="color" in2="blur" operator="in" result="glow" />
           <feMerge>
-            <feMergeNode in="outline" />
+            <feMergeNode in="glow" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
       </defs>
-      {/* Outer subtle shadow under the sticker */}
-      <circle cx="50" cy="53" r="38" fill="black" opacity="0.25" filter="blur(2px)" />
       
-      {/* The actual creature with the sticker filter applied */}
-      <g filter="url(#sticker-outline)">
+      {/* Sci-Fi HUD background elements */}
+      <circle cx="50" cy="50" r="44" fill="none" stroke={accent} strokeWidth="1" opacity="0.25" strokeDasharray="3,3" />
+      <circle cx="50" cy="50" r="39" fill="rgba(0, 0, 0, 0.45)" stroke={accent} strokeWidth="1.5" opacity="0.8" />
+      
+      {/* The creature with HUD neon glow filter */}
+      <g filter={`url(#hud-glow-${element})`}>
         <Being accent={accent} spikes={spikes} />
       </g>
     </svg>
