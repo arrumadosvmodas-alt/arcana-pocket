@@ -1,13 +1,23 @@
 import { PrismaClient } from "@prisma/client";
-import {
-  ELEMENTS,
-  Element,
-  Rarity,
-  STARTER_COINS,
-  MAX_STAMINA,
-} from "../src/lib/engine/cards";
 
-const prisma = new PrismaClient();
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "warn", "error"]
+        : ["error"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+
+export default prisma;
 
 const LOCAL_PROFILE_ID = "local-player";
 
