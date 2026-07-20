@@ -9,12 +9,18 @@ function MiniCard({ card }: { card: BattleCard }) {
   const rarityTheme = RARITY_THEME[card.rarity];
   return (
     <div
-      className="flex w-full flex-col items-center rounded-lg border p-1.5 text-[10px]"
-      style={{ borderColor: rarityTheme.color, background: `${elementTheme.color}22` }}
+      className="flex w-full flex-col items-center rounded-xl border-[2.5px] border-white p-2 text-[10px] shadow-sm transition-all"
+      style={{ 
+        borderColor: '#ffffff',
+        background: `linear-gradient(135deg, ${elementTheme.color}35 0%, var(--surface-2) 100%)`,
+        boxShadow: '0 3px 0 var(--border-dark)'
+      }}
     >
-      <span className="font-semibold leading-tight">{card.name}</span>
-      <div className="mt-1 flex gap-2 font-bold">
-        <span className="text-[var(--accent-2)]">⚔{card.attack}</span>
+      <span className="font-extrabold text-white leading-tight text-center drop-shadow-sm truncate w-full">
+        {card.name}
+      </span>
+      <div className="mt-1 flex gap-2 font-black">
+        <span className="text-amber-400">⚔{card.attack}</span>
         <span className="text-emerald-400">
           ♥{card.health}/{card.maxHealth}
         </span>
@@ -67,77 +73,125 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
   const canAdvance = state.playerPlayedThisRound || state.playerHand.every((c) => c.cost > state.energy);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between text-sm">
-        <span>
-          Rodada {state.round}/{state.maxRounds} · Energia {state.energy}/{state.maxEnergy}
+    <div className="flex flex-col gap-5 p-4 rounded-2xl border-3 border-black bg-[var(--surface)] shadow-lg">
+      
+      {/* Header Info */}
+      <div className="flex items-center justify-between text-xs font-black bg-black/20 p-2.5 rounded-xl border border-white/10">
+        <span className="text-white">
+          🔋 ENERGIA: <span className="text-amber-400 text-sm">{state.energy}/{state.maxEnergy}</span>
+        </span>
+        <span className="text-[var(--muted)]">
+          RODADA: <span className="text-white text-sm">{state.round}/{state.maxRounds}</span>
         </span>
       </div>
 
+      {/* Opponent Section */}
       <div className="flex items-center justify-between gap-2">
-        <LifeBar label="Oponente" value={state.botLife} max={state.startingLife} color="#ff6b6b" />
+        <LifeBar label="🤖 OPONENTE" value={state.botLife} max={state.startingLife} color="#ff477e" />
       </div>
-      <div className="grid grid-cols-3 gap-2">
+
+      {/* Lanes Board */}
+      <div className="grid grid-cols-3 gap-3">
         {state.lanes.map((lane, i) => (
-          <div key={i} className="flex h-20 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-1">
-            {lane.bot ? <MiniCard card={lane.bot} /> : <span className="text-xs text-[var(--muted)]">vazio</span>}
+          <div 
+            key={i} 
+            className="flex h-24 items-center justify-center rounded-xl border-[2.5px] border-black bg-[var(--surface-2)] p-1.5 shadow-inner"
+            style={{ boxShadow: 'inset 0 4px 6px rgba(0,0,0,0.3)' }}
+          >
+            {lane.bot ? (
+              <MiniCard card={lane.bot} />
+            ) : (
+              <span className="text-[10px] font-bold text-[var(--muted)] uppercase tracking-wider">LIVRE</span>
+            )}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      {/* Divider */}
+      <div className="border-t-2 border-dashed border-black/30 my-1" />
+
+      {/* Player Lanes Board */}
+      <div className="grid grid-cols-3 gap-3">
         {state.lanes.map((lane, i) => (
           <button
             key={i}
             onClick={() => handlePlay(i)}
             disabled={!selectedCardId || lane.player !== null || state.playerPlayedThisRound}
-            className="flex h-20 items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-2)] p-1 disabled:cursor-default enabled:hover:border-[var(--accent)]"
+            className="flex h-24 items-center justify-center rounded-xl border-3 border-dashed border-[var(--border)] bg-[var(--surface-2)] p-1.5 transition-all enabled:hover:border-[var(--accent)] enabled:hover:scale-102 enabled:active:scale-98 disabled:opacity-90 cursor-pointer"
           >
-            {lane.player ? <MiniCard card={lane.player} /> : <span className="text-xs text-[var(--muted)]">jogar aqui</span>}
-          </button>
-        ))}
-      </div>
-      <LifeBar label="Você" value={state.playerLife} max={state.startingLife} color="#5cd68a" />
-
-      <div className="flex gap-2 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-2">
-        {state.playerHand.map((card) => (
-          <button
-            key={card.id}
-            onClick={() => setSelectedCardId((id) => (id === card.id ? null : card.id))}
-            disabled={card.cost > state.energy || state.playerPlayedThisRound}
-            className={`w-20 shrink-0 rounded-lg transition-transform disabled:opacity-40 ${
-              selectedCardId === card.id ? "-translate-y-1 ring-2 ring-[var(--accent)]" : ""
-            }`}
-          >
-            <MiniCard card={card} />
-            <div className="mt-0.5 text-center text-[10px] text-[var(--muted)]">custo {card.cost}</div>
+            {lane.player ? (
+              <MiniCard card={lane.player} />
+            ) : (
+              <span className="text-[10px] font-black text-pink-400 uppercase tracking-wider animate-pulse">
+                {selectedCardId ? "Jogar Aqui" : "Vazio"}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
-      <div className="flex gap-2">
-        <button onClick={handlePass} disabled={state.playerPlayedThisRound} className="flex-1 rounded-full bg-[var(--surface-2)] py-2 text-sm font-semibold disabled:opacity-40">
-          Passar
+      {/* Player Health */}
+      <LifeBar label="⭐ VOCÊ" value={state.playerLife} max={state.startingLife} color="#2ec4b6" />
+
+      {/* Player Hand */}
+      <div className="flex gap-2 overflow-x-auto rounded-2xl border-[3px] border-black bg-black/10 p-3 shadow-inner">
+        {state.playerHand.map((card) => {
+          const isSelected = selectedCardId === card.id;
+          return (
+            <button
+              key={card.id}
+              onClick={() => setSelectedCardId((id) => (id === card.id ? null : card.id))}
+              disabled={card.cost > state.energy || state.playerPlayedThisRound}
+              className={`w-24 shrink-0 rounded-xl transition-all duration-150 cursor-pointer ${
+                isSelected ? "-translate-y-2" : ""
+              } disabled:opacity-40 disabled:cursor-not-allowed`}
+              style={{
+                filter: isSelected ? 'drop-shadow(0 6px 8px rgba(255, 71, 126, 0.4))' : 'none'
+              }}
+            >
+              <MiniCard card={card} />
+              <div className="mt-1.5 text-center text-[10px] font-extrabold text-[var(--accent-2)] bg-black/35 py-0.5 rounded-md">
+                CUSTO: {card.cost}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 mt-1">
+        <button 
+          onClick={handlePass} 
+          disabled={state.playerPlayedThisRound} 
+          className="btn-sticker btn-sticker-sec flex-1 text-xs sm:text-sm py-2.5"
+        >
+          Passar Turno
         </button>
-        <button onClick={handleAdvance} disabled={!canAdvance} className="flex-1 rounded-full bg-[var(--accent)] py-2 text-sm font-semibold text-white disabled:opacity-40">
-          Avançar rodada
+        <button 
+          onClick={handleAdvance} 
+          disabled={!canAdvance} 
+          className="btn-sticker btn-sticker-yellow flex-1 text-xs sm:text-sm py-2.5"
+        >
+          Avançar Rodada
         </button>
       </div>
 
-      <details className="text-xs text-[var(--muted)]">
-        <summary className="cursor-pointer">Histórico</summary>
-        <ul className="mt-1 flex flex-col gap-0.5">
+      {/* Battle Log */}
+      <details className="text-[11px] text-[var(--muted)] bg-black/20 p-2.5 rounded-xl border border-white/5">
+        <summary className="cursor-pointer font-bold hover:text-white transition-colors select-none">HISTÓRICO DA BATALHA</summary>
+        <ul className="mt-2 flex flex-col gap-1 max-h-20 overflow-y-auto scrollbar-none font-medium">
           {state.log.map((entry, i) => (
-            <li key={i}>{entry}</li>
+            <li key={i} className="border-b border-white/5 pb-0.5">{entry}</li>
           ))}
         </ul>
       </details>
 
+      {/* Final Battle Status overlay */}
       {state.status !== "ongoing" && (
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-center font-semibold">
-          {state.status === "player_win" && "Você venceu! 🎉"}
-          {state.status === "bot_win" && "Você perdeu."}
-          {state.status === "draw" && "Empate."}
+        <div className="rounded-2xl border-3 border-black bg-[var(--surface-2)] p-4 text-center font-black text-white text-lg shadow-lg">
+          {state.status === "player_win" && "VOCÊ VENCEU! 🎉"}
+          {state.status === "bot_win" && "VOCÊ PERDEU. 💀"}
+          {state.status === "draw" && "EMPATE! 🤝"}
         </div>
       )}
     </div>
@@ -148,14 +202,17 @@ function LifeBar({ label, value, max, color }: { label: string; value: number; m
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   return (
     <div className="flex-1">
-      <div className="flex justify-between text-xs text-[var(--muted)]">
+      <div className="flex justify-between text-xs font-black text-white mb-1">
         <span>{label}</span>
         <span>
-          {value}/{max}
+          {value}/{max} HP
         </span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
-        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
+      <div className="h-4.5 w-full overflow-hidden rounded-full border-3 border-black bg-black/30 p-[2px]">
+        <div 
+          className="h-full rounded-full transition-all duration-300" 
+          style={{ width: `${pct}%`, backgroundColor: color }} 
+        />
       </div>
     </div>
   );

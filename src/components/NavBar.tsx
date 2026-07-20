@@ -37,19 +37,24 @@ export function NavBar() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b-4 border-black bg-[var(--surface)]/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-          <span className="inline-block h-6 w-6 rounded-md bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)]" />
-          Arcana Pocket
+        <Link href="/" className="flex items-center gap-2 font-bold tracking-tight text-white text-lg">
+          <span 
+            className="inline-block h-6 w-6 rounded-lg border-2 border-white shadow-sm"
+            style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-2))' }}
+          />
+          <span className="drop-shadow-sm font-black">Arcana Pocket</span>
         </Link>
+        
         {session ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-[var(--muted)]">{session.user.email}</span>
+            <span className="hidden sm:inline text-xs font-bold text-[var(--muted)]">{session.user.email}</span>
             <button
               onClick={handleSignOut}
               disabled={signingOut}
-              className="rounded-full px-3 py-1.5 text-sm text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] transition-colors disabled:opacity-50"
+              className="btn-sticker btn-sticker-sec py-1 px-3 text-xs"
+              style={{ boxShadow: '0 2px 0 var(--border-dark)', border: '2px solid var(--border-dark)' }}
             >
               {signingOut ? "Saindo..." : "Sair"}
             </button>
@@ -57,24 +62,31 @@ export function NavBar() {
         ) : (
           <Link
             href="/login"
-            className="rounded-full px-3 py-1.5 text-sm text-[var(--accent)] hover:bg-[var(--surface-2)] transition-colors"
+            className="btn-sticker py-1 px-3 text-xs"
+            style={{ boxShadow: '0 2px 0 var(--border-dark)', border: '2px solid var(--border-dark)' }}
           >
             Login
           </Link>
         )}
       </div>
-      <nav className="mx-auto flex max-w-3xl gap-1 overflow-x-auto px-2 pb-2">
+      
+      {/* Navigation Links as Sticker Pills */}
+      <nav className="mx-auto flex max-w-3xl gap-1.5 overflow-x-auto px-4 pb-2.5 scrollbar-none">
         {LINKS.map((link) => {
           const active = pathname === link.href;
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition-colors ${
+              className={`whitespace-nowrap font-bold text-xs px-3.5 py-1.5 rounded-full border-2 border-black transition-all ${
                 active
                   ? "bg-[var(--accent)] text-white"
-                  : "text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]"
+                  : "bg-[var(--surface-2)] text-[var(--muted)] hover:text-white hover:border-[var(--accent)]"
               }`}
+              style={{
+                boxShadow: active ? '0 2px 0 var(--border-dark)' : 'none',
+                transform: active ? 'translateY(-1px)' : 'none'
+              }}
             >
               {link.label}
             </Link>

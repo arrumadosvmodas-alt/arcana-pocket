@@ -1,115 +1,286 @@
 import { Element, Rarity } from "@/lib/engine/cards";
 
-// Each element has a distinct alien-creature silhouette, not a person or
-// earthly animal — geometric eyes/limbs read as extraterrestrial.
-// Rarity adds extra spikes/fins so higher tiers look visually "more evolved".
+// Detailed, cute, sticker-style creature illustrations for each element.
+// Rarity scales the complexity by adding visual elements (wings, crowns, horns, extra sparkles).
+
+function CuteBlush({ cx, cy }: { cx: number; cy: number }) {
+  return (
+    <>
+      <ellipse cx={cx - 10} cy={cy} rx="5" ry="3" fill="#ff7096" opacity="0.6" />
+      <ellipse cx={cx + 10} cy={cy} rx="5" ry="3" fill="#ff7096" opacity="0.6" />
+    </>
+  );
+}
+
+function CuteEyes({ cx, cy }: { cx: number; cy: number }) {
+  return (
+    <>
+      {/* Eye Left */}
+      <circle cx={cx - 11} cy={cy} r="6.5" fill="#14172a" />
+      <circle cx={cx - 13} cy={cy - 2} r="2.2" fill="white" />
+      <circle cx={cx - 10} cy={cy + 1} r="1.0" fill="white" />
+      {/* Eye Right */}
+      <circle cx={cx + 11} cy={cy} r="6.5" fill="#14172a" />
+      <circle cx={cx + 9} cy={cy - 2} r="2.2" fill="white" />
+      <circle cx={cx + 12} cy={cy + 1} r="1.0" fill="white" />
+    </>
+  );
+}
 
 function FireBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
-    <>
-      <path
-        d="M50 20 C38 34 30 46 34 60 C37 71 45 76 50 76 C55 76 63 71 66 60 C70 46 62 34 50 20Z"
-        fill={accent}
-        opacity="0.9"
-      />
+    <g>
+      {/* Background Glow */}
+      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      
+      {/* Fire Tail / Body Base */}
+      <path d="M35 65 C25 65 20 50 30 40 C35 35 45 42 45 50" fill="#ff9f1c" />
+      
+      {/* Fire Wings/Spikes for RARE/EPIC */}
       {spikes && (
-        <>
-          <path d="M50 18 L54 28 L50 24 L46 28Z" fill={accent} />
-          <path d="M34 40 L26 36 L32 44Z" fill={accent} opacity="0.8" />
-          <path d="M66 40 L74 36 L68 44Z" fill={accent} opacity="0.8" />
-        </>
+        <g fill="#e71d36">
+          {/* Left Wing */}
+          <path d="M25 45 C10 40 8 20 22 25 C15 35 22 40 25 45Z" />
+          {/* Right Wing */}
+          <path d="M75 45 C90 40 92 20 78 25 C85 35 78 40 75 45Z" />
+          {/* Flame Crown */}
+          <path d="M42 22 L50 8 L58 22 L50 18Z" />
+        </g>
       )}
-      <circle cx="43" cy="52" r="3.4" fill="#fff2e0" />
-      <circle cx="57" cy="52" r="3.4" fill="#fff2e0" />
-    </>
+
+      {/* Main Head/Body */}
+      <path d="M30 55 C30 35 70 35 70 55 C70 68 30 68 30 55Z" fill="#ff7900" />
+      <path d="M34 56 C34 40 66 40 66 56 C66 66 34 66 34 56Z" fill="#ff9f1c" />
+
+      {/* Little Fire Horns */}
+      <path d="M36 38 L32 26 L44 34Z" fill="#e71d36" />
+      <path d="M64 38 L68 26 L56 34Z" fill="#e71d36" />
+
+      {/* Face details */}
+      <CuteBlush cx={50} cy={55} />
+      <CuteEyes cx={50} cy={50} />
+      
+      {/* Cute Smile */}
+      <path d="M47 57 Q50 60 53 57" stroke="#14172a" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      
+      {/* Sparkles */}
+      <circle cx="28" cy="28" r="2.5" fill="#ffd166" />
+      <circle cx="72" cy="62" r="1.5" fill="#ffd166" />
+    </g>
   );
 }
 
 function WaterBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
-    <>
-      <ellipse cx="50" cy="54" rx="17" ry="22" fill={accent} opacity="0.9" />
-      <path d="M50 30 L44 40 L56 40Z" fill={accent} />
+    <g>
+      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      
+      {/* Water Wings / Fin Ears for RARE/EPIC */}
       {spikes && (
+        <g fill="#4ea8de">
+          {/* Left Large Fin */}
+          <path d="M26 48 C12 44 14 26 24 34 C20 42 24 46 26 48Z" />
+          {/* Right Large Fin */}
+          <path d="M74 48 C88 44 86 26 76 34 C80 42 76 46 74 48Z" />
+          {/* Droplet Crown */}
+          <circle cx="50" cy="14" r="4.5" />
+          <path d="M50 14 L46 24 L54 24Z" />
+        </g>
+      )}
+
+      {/* Round Body */}
+      <circle cx="50" cy="52" r="20" fill="#4ea8de" />
+      <circle cx="50" cy="52" r="17" fill="#90e0ef" />
+      
+      {/* Tail Fin */}
+      <path d="M50 72 C40 76 40 82 50 82 C60 82 60 76 50 72Z" fill="#4ea8de" />
+
+      {/* Cute Fin Ears (Common) */}
+      {!spikes && (
         <>
-          <path d="M33 54 C26 52 24 58 28 62Z" fill={accent} opacity="0.85" />
-          <path d="M67 54 C74 52 76 58 72 62Z" fill={accent} opacity="0.85" />
+          <path d="M31 46 C24 42 26 52 32 50Z" fill="#4ea8de" />
+          <path d="M69 46 C76 42 74 52 68 50Z" fill="#4ea8de" />
         </>
       )}
-      <circle cx="44" cy="48" r="3.4" fill="#eaf9ff" />
-      <circle cx="56" cy="48" r="3.4" fill="#eaf9ff" />
-    </>
+
+      {/* Face details */}
+      <CuteBlush cx={50} cy={54} />
+      <CuteEyes cx={50} cy={48} />
+      
+      {/* Cute Open Mouth */}
+      <ellipse cx="50" cy="55" rx="3.5" ry="2" fill="#ff7096" />
+      
+      {/* Bubbles */}
+      <circle cx="26" cy="30" r="3" fill="#caf0f8" opacity="0.8" />
+      <circle cx="22" cy="36" r="1.5" fill="#caf0f8" opacity="0.8" />
+      <circle cx="74" cy="32" r="2.5" fill="#caf0f8" opacity="0.8" />
+    </g>
   );
 }
 
 function EarthBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
-    <>
-      <polygon points="50,24 70,42 62,68 38,68 30,42" fill={accent} opacity="0.9" />
+    <g>
+      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      
+      {/* Crystals/Flowers for RARE/EPIC */}
       {spikes && (
+        <g fill="#ff7096">
+          {/* Blossom on head */}
+          <circle cx="50" cy="20" r="5" />
+          <circle cx="45" cy="16" r="4.5" />
+          <circle cx="55" cy="16" r="4.5" />
+          <circle cx="45" cy="24" r="4.5" />
+          <circle cx="55" cy="24" r="4.5" />
+          <circle cx="50" cy="20" r="3" fill="#ffd166" />
+          
+          {/* Crystal spikes on sides */}
+          <polygon points="20,54 14,48 24,42" fill="#4ea8de" />
+          <polygon points="80,54 86,48 76,42" fill="#4ea8de" />
+        </g>
+      )}
+
+      {/* Rocky/Leafy Body */}
+      <path d="M28 58 C28 40 72 40 72 58 C72 72 28 72 28 58Z" fill="#6c584c" />
+      
+      {/* Grass/Leaf Coat */}
+      <path d="M30 46 C36 34 64 34 70 46 C70 46 60 52 50 48 C40 52 30 46 30 46Z" fill="#adc178" />
+
+      {/* Sprouts (Head) */}
+      {!spikes && (
         <>
-          <polygon points="50,16 54,26 46,26" fill={accent} />
-          <polygon points="26,40 34,44 28,50" fill={accent} opacity="0.8" />
-          <polygon points="74,40 66,44 72,50" fill={accent} opacity="0.8" />
+          <path d="M50 36 Q42 26 44 24 Q48 24 50 36Z" fill="#a7c957" />
+          <path d="M50 36 Q58 26 56 24 Q52 24 50 36Z" fill="#a7c957" />
         </>
       )}
-      <rect x="41" y="46" width="6" height="6" fill="#f4ecd8" />
-      <rect x="53" y="46" width="6" height="6" fill="#f4ecd8" />
-    </>
+
+      {/* Face details */}
+      <CuteBlush cx={50} cy={58} />
+      <CuteEyes cx={50} cy={52} />
+
+      {/* Mouth */}
+      <path d="M48 58 Q50 61 52 58" stroke="#14172a" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+    </g>
   );
 }
 
 function AirBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
-    <>
-      <path
-        d="M50 26 C60 30 68 40 66 52 C64 64 56 70 50 70 C44 70 36 64 34 52 C32 40 40 30 50 26Z"
-        fill={accent}
-        opacity="0.85"
-      />
+    <g>
+      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      
+      {/* Large Wings / Wind swirls for RARE/EPIC */}
       {spikes && (
-        <>
-          <path d="M30 46 C20 44 18 52 24 56Z" fill={accent} opacity="0.7" />
-          <path d="M70 46 C80 44 82 52 76 56Z" fill={accent} opacity="0.7" />
-        </>
+        <g fill="#90e0ef">
+          {/* Fluffy Left Wing */}
+          <path d="M28 45 C10 40 6 22 20 24 C14 34 22 40 28 45Z" opacity="0.9" />
+          {/* Fluffy Right Wing */}
+          <path d="M72 45 C90 40 94 22 80 24 C86 34 78 40 72 45Z" opacity="0.9" />
+          {/* Feather Crown */}
+          <path d="M50 22 C50 10 44 14 42 12 C44 20 48 22 50 22Z" fill="#00b4d8" />
+          <path d="M50 22 C50 10 56 14 58 12 C56 20 52 22 50 22Z" fill="#00b4d8" />
+        </g>
       )}
-      <ellipse cx="44" cy="50" rx="3.6" ry="4.4" fill="#f4fff9" />
-      <ellipse cx="56" cy="50" rx="3.6" ry="4.4" fill="#f4fff9" />
-    </>
+
+      {/* Cloud Body Puffs */}
+      <circle cx="38" cy="50" r="14" fill="#e0f2fe" />
+      <circle cx="62" cy="50" r="14" fill="#e0f2fe" />
+      <circle cx="50" cy="46" r="16" fill="#f8fafc" />
+      <circle cx="50" cy="58" r="13" fill="#f8fafc" />
+
+      {/* Face details */}
+      <CuteBlush cx={50} cy={52} />
+      <CuteEyes cx={50} cy={46} />
+      
+      {/* Joy Smile */}
+      <path d="M46 53 Q50 58 54 53" stroke="#14172a" strokeWidth="3" strokeLinecap="round" fill="none" />
+      
+      {/* Sparkles */}
+      <circle cx="28" cy="24" r="2" fill="#38bdf8" />
+      <circle cx="70" cy="26" r="2.5" fill="#38bdf8" />
+    </g>
   );
 }
 
 function LightBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
-    <>
-      <polygon points="50,22 58,42 50,38 42,42" fill={accent} />
-      <polygon points="36,50 64,50 50,74" fill={accent} opacity="0.9" />
+    <g>
+      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      
+      {/* Fairy Wings & Halo for RARE/EPIC */}
       {spikes && (
-        <>
-          <polygon points="50,20 53,14 56,20" fill={accent} />
-          <polygon points="28,52 20,50 26,58" fill={accent} opacity="0.8" />
-          <polygon points="72,52 80,50 74,58" fill={accent} opacity="0.8" />
-        </>
+        <g fill="#fff3b0">
+          {/* Left Wing */}
+          <path d="M30 45 C12 36 18 16 26 26 C22 36 28 42 30 45Z" opacity="0.85" />
+          {/* Right Wing */}
+          <path d="M70 45 C88 36 82 16 74 26 C78 36 72 42 70 45Z" opacity="0.85" />
+          {/* Halo */}
+          <ellipse cx="50" cy="16" rx="14" ry="4.5" fill="none" stroke="#ffd166" strokeWidth="3" />
+        </g>
       )}
-      <circle cx="50" cy="56" r="3.6" fill="#fffbe0" />
-    </>
+
+      {/* Star Shape Head */}
+      <polygon points="50,22 57,36 71,36 60,46 64,60 50,51 36,60 40,46 29,36 43,36" fill="#ffd166" />
+      <circle cx="50" cy="45" r="13" fill="#ffe3e0" opacity="0.9" />
+
+      {/* Face details */}
+      <CuteBlush cx={50} cy={48} />
+      <CuteEyes cx={50} cy={42} />
+
+      {/* Shy Smile */}
+      <path d="M48 50 Q50 52 52 50" stroke="#14172a" strokeWidth="2" strokeLinecap="round" fill="none" />
+      
+      {/* Magic Stars */}
+      <polygon points="26,22 28,26 32,26 29,28 30,32 27,29 24,31 26,27 23,25 27,25" fill="#ffd166" />
+      <polygon points="72,56 74,59 78,59 75,61 76,65 73,62 70,64 72,60 69,58 73,58" fill="#ffd166" />
+    </g>
   );
 }
 
 function ShadowBeing({ accent, spikes }: { accent: string; spikes: boolean }) {
   return (
-    <>
-      <path d="M50 24 L68 56 L50 48 L32 56Z" fill={accent} opacity="0.9" />
-      <path d="M40 56 L60 56 L50 72Z" fill={accent} opacity="0.75" />
+    <g>
+      <circle cx="50" cy="50" r="32" fill={accent} opacity="0.15" />
+      
+      {/* Bat Wings & Shadow Crown for RARE/EPIC */}
       {spikes && (
-        <>
-          <path d="M32 56 L22 52 L28 62Z" fill={accent} opacity="0.7" />
-          <path d="M68 56 L78 52 L72 62Z" fill={accent} opacity="0.7" />
-        </>
+        <g fill="#3d348b">
+          {/* Left Wing */}
+          <path d="M30 46 C12 40 10 24 24 26 C16 34 26 40 30 46Z" />
+          {/* Right Wing */}
+          <path d="M70 46 C88 40 90 24 76 26 C84 34 74 40 70 46Z" />
+          {/* Extra Spikes */}
+          <path d="M42 20 L50 6 L58 20Z" fill="#240046" />
+        </g>
       )}
-      <circle cx="44" cy="42" r="3" fill="#f0e6ff" />
-      <circle cx="56" cy="42" r="3" fill="#f0e6ff" />
-    </>
+
+      {/* Gengar-style Body Blob */}
+      <path d="M28 54 C28 34 72 34 72 54 C72 70 28 70 28 54Z" fill="#5c4d7d" />
+      <path d="M32 55 C32 38 68 38 68 55 C68 68 32 68 32 55Z" fill="#75629f" />
+
+      {/* Horn/Ear Spikes (Common) */}
+      <path d="M34 38 L28 26 L42 34Z" fill="#3d348b" />
+      <path d="M66 38 L72 26 L58 34Z" fill="#3d348b" />
+
+      {/* Face details */}
+      <CuteBlush cx={50} cy={56} />
+      
+      {/* Evil / Mischievous Eyes (Glowing Magenta) */}
+      <circle cx="39" cy="48" r="6" fill="#e0aaff" />
+      <circle cx="39" cy="48" r="2.5" fill="#3d0066" />
+      <circle cx="41" cy="46" r="1" fill="white" />
+      
+      <circle cx="61" cy="48" r="6" fill="#e0aaff" />
+      <circle cx="61" cy="48" r="2.5" fill="#3d0066" />
+      <circle cx="59" cy="46" r="1" fill="white" />
+
+      {/* Mischievous Grin */}
+      <path d="M44 56 Q50 62 56 56" stroke="#14172a" strokeWidth="3" strokeLinecap="round" fill="none" />
+      
+      {/* Ghost wisps */}
+      <circle cx="22" cy="62" r="2" fill="#75629f" opacity="0.6" />
+      <circle cx="78" cy="62" r="1.5" fill="#75629f" opacity="0.6" />
+    </g>
   );
 }
 
@@ -137,9 +308,26 @@ export function AlienEmblem({
   const spikes = rarity !== "COMMON";
 
   return (
-    <svg viewBox="0 0 100 100" className={className} role="img" aria-label={`Criatura alienígena de elemento ${element}`}>
-      <circle cx="50" cy="50" r="38" fill={accent} opacity="0.08" />
-      <Being accent={accent} spikes={spikes} />
+    <svg viewBox="0 0 100 100" className={className} role="img" aria-label={`Criatura de elemento ${element}`}>
+      <defs>
+        {/* SVG filter that generates a bold, sticker-like white outline */}
+        <filter id="sticker-outline" x="-20%" y="-20%" width="140%" height="140%">
+          <feMorphology in="SourceAlpha" result="dilated" operator="dilate" radius="3" />
+          <feFlood flood-color="white" result="flood" />
+          <feComposite in="flood" in2="dilated" operator="in" result="outline" />
+          <feMerge>
+            <feMergeNode in="outline" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      {/* Outer subtle shadow under the sticker */}
+      <circle cx="50" cy="53" r="38" fill="black" opacity="0.25" filter="blur(2px)" />
+      
+      {/* The actual creature with the sticker filter applied */}
+      <g filter="url(#sticker-outline)">
+        <Being accent={accent} spikes={spikes} />
+      </g>
     </svg>
   );
 }
