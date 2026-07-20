@@ -5,6 +5,12 @@ import { AppLayout } from "@/components/AppLayout";
 export const metadata: Metadata = {
   title: "Arcana Pocket",
   description: "Um jogo de cartas colecionáveis original, para partidas rápidas.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Arcana Pocket",
+  },
 };
 
 export default function RootLayout({

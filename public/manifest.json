@@ -1,0 +1,28 @@
+{
+  "name": "Arcana Pocket",
+  "short_name": "Arcana Pocket",
+  "description": "Um jogo de cartas colecionáveis original, para partidas rápidas.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090b14",
+  "theme_color": "#ff477e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
