@@ -6,24 +6,23 @@ import { ELEMENT_THEME, RARITY_THEME } from "@/lib/engine/cards";
 import { authFetch } from "@/lib/api";
 
 function MiniCard({ card }: { card: BattleCard }) {
-  const elementTheme = ELEMENT_THEME[card.element];
-  const rarityTheme = RARITY_THEME[card.rarity];
+  const neonClass = 
+    card.element === "FIRE" ? "border-neon-fire" :
+    card.element === "WATER" ? "border-neon-water" :
+    card.element === "EARTH" ? "border-neon-earth" :
+    "border-neon-air";
+
   return (
     <div
-      className="flex w-full flex-col items-center rounded-xl border-[2.5px] border-white p-2 text-[10px] shadow-sm transition-all"
-      style={{ 
-        borderColor: '#ffffff',
-        background: `linear-gradient(135deg, ${elementTheme.color}35 0%, var(--surface-2) 100%)`,
-        boxShadow: '0 3px 0 var(--border-dark)'
-      }}
+      className={`nft-card-container ${neonClass} flex w-full flex-col items-center p-2 text-[10px]`}
     >
       <span className="font-extrabold text-white leading-tight text-center drop-shadow-sm truncate w-full">
         {card.name}
       </span>
-      <div className="mt-1 flex gap-2 font-black">
-        <span className="text-amber-400">⚔{card.attack}</span>
+      <div className="mt-1.5 flex gap-2.5 font-black">
+        <span className="text-amber-400">⚔ {card.attack}</span>
         <span className="text-emerald-400">
-          ♥{card.health}/{card.maxHealth}
+          🛡 {card.health}/{card.maxHealth}
         </span>
       </div>
     </div>
