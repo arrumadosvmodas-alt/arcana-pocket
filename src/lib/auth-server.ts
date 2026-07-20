@@ -13,7 +13,7 @@ const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Get user from request (preferred method)
-export async function getUserFromRequest(req: NextRequest): Promise<string | null> {
+export async function getUserFromRequest(req: NextRequest): Promise<string | undefined> {
   try {
     // Try to get from Authorization header
     const authHeader = req.headers.get("authorization");
@@ -30,19 +30,19 @@ export async function getUserFromRequest(req: NextRequest): Promise<string | nul
       return getUserIdFromJWT(authToken);
     }
 
-    return null;
+    return undefined;
   } catch (error) {
-    return null;
+    return undefined;
   }
 }
 
 // Decode JWT directly (simpler for route handlers)
-export function getUserIdFromJWT(token: string): string | null {
-  if (!token) return null;
+export function getUserIdFromJWT(token: string): string | undefined {
+  if (!token) return undefined;
 
   try {
     const parts = token.split(".");
-    if (parts.length !== 3) return null;
+    if (parts.length !== 3) return undefined;
 
     // Decode JWT payload (second part)
     const decoded = JSON.parse(
@@ -51,13 +51,13 @@ export function getUserIdFromJWT(token: string): string | null {
 
     return decoded.sub; // 'sub' is the user ID in Supabase JWTs
   } catch (error) {
-    return null;
+    return undefined;
   }
 }
 
 // Legacy: get user ID from auth header string
-export function getUserIdFromAuthHeader(authHeader?: string): string | null {
-  if (!authHeader) return null;
+export function getUserIdFromAuthHeader(authHeader?: string): string | undefined {
+  if (!authHeader) return undefined;
   const token = authHeader.replace("Bearer ", "");
   return getUserIdFromJWT(token);
 }
