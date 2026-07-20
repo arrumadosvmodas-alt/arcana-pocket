@@ -4,39 +4,9 @@ import { ELEMENTS, type Element } from "../src/lib/engine/cards";
 const prisma = new PrismaClient();
 
 const LOCAL_PROFILE_ID = "local-player";
+const STARTER_COINS = 500;
+const MAX_STAMINA = 6;
 
-const NAMES: Record<Element, string[]> = {
-  // mantenha todos os nomes que já existiam
-};
-
-function rarityForIndex(index: number, total: number) {
-  // mantenha a implementação existente
-}
-
-async function main() {
-  await prisma.card.deleteMany();
-  await prisma.deck.deleteMany();
-  await prisma.profile.deleteMany();
-
-  const cardData = ELEMENTS.flatMap((element) => {
-    const names = NAMES[element];
-
-    return names.map((name, i) => {
-      const rarity = rarityForIndex(i, names.length);
-
-      // mantenha aqui o objeto original retornado
-    });
-  });
-
-  // restante da função que utiliza cardData
-}
-
-export default prisma;
-
-const LOCAL_PROFILE_ID = "local-player";
-
-// Original creature names per element, ordered roughly weakest to strongest.
-// No names, creatures, or terms are drawn from any existing media property.
 const NAMES: Record<Element, string[]> = {
   FIRE: [
     "Ember Sprite", "Cinder Pup", "Flarehare", "Torch Beetle", "Kiln Boar",
@@ -83,25 +53,18 @@ const NAMES: Record<Element, string[]> = {
 };
 
 function rarityForIndex(i: number, total: number): "COMMON" | "RARE" | "EPIC" {
-  // ~15% épicas, ~25% raras, ~60% comuns (mais viável para construir decks)
   if (i >= total - Math.ceil(total * 0.15)) return "EPIC";
   if (i >= total - Math.ceil(total * 0.40)) return "RARE";
   return "COMMON";
 }
 
 function statsFor(i: number, total: number, rarity: "COMMON" | "RARE" | "EPIC") {
-  // Custo: 1-6, distribuído ao longo do catálogo
   const cost = Math.min(6, Math.max(1, Math.ceil((i / total) * 6)));
-
-  // Bonus por raridade
   const rarityBonus = rarity === "EPIC" ? 4 : rarity === "RARE" ? 2 : 0;
-
-  // Stats escalonados: cartas de custo alto são mais fortes
   const baseAttack = cost + 1;
   const baseHealth = cost + 2;
-  const attack = baseAttack + rarityBonus + (i % 3); // +0 a +2 variação
-  const health = baseHealth + rarityBonus + ((i + 1) % 3); // +0 a +2 variação
-
+  const attack = baseAttack + rarityBonus + (i % 3);
+  const health = baseHealth + rarityBonus + ((i + 1) % 3);
   return { cost, attack, health };
 }
 
@@ -150,7 +113,7 @@ async function main() {
       coins: STARTER_COINS,
       stamina: MAX_STAMINA,
       maxStamina: MAX_STAMINA,
-      gems: 200, // Demo gems para testar shop
+      gems: 200,
     },
   });
 
@@ -171,7 +134,7 @@ async function main() {
   ];
   await prisma.mission.createMany({ data: missions });
 
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const today = new Date().toISOString().split("T")[0];
   for (const mission of missions) {
     await prisma.playerMission.create({
       data: {
@@ -196,3 +159,5 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+export default prisma;
