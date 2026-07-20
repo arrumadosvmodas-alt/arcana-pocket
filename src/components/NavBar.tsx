@@ -7,6 +7,7 @@ import { useState } from "react";
 
 const LINKS = [
   { href: "/", label: "Início" },
+  { href: "/manual", label: "Como Jogar 📖" },
   { href: "/packs", label: "Pacotes" },
   { href: "/shop", label: "Loja" },
   { href: "/missions", label: "Missões" },

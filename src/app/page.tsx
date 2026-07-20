@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { LOCAL_PROFILE_ID, computeStaminaRegen } from "@/lib/player";
+import { ProtectedPage } from "@/components/ProtectedPage";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,8 @@ export default async function HomePage() {
   const stamina = wallet ? computeStaminaRegen(wallet).stamina : 0;
 
   return (
-    <div className="flex flex-col gap-6">
+    <ProtectedPage>
+      <div className="flex flex-col gap-6">
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
         <h1 className="text-2xl font-bold">Olá, {profile?.displayName ?? "Treinador"}</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">
@@ -35,6 +37,7 @@ export default async function HomePage() {
         <ActionCard href="/battle" title="Batalha" desc="PvE contra o bot" />
       </section>
     </div>
+    </ProtectedPage>
   );
 }
 

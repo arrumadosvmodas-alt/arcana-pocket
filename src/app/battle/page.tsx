@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BattleBoard } from "@/components/BattleBoard";
 import { BattleCardSource, BattleState, createBattle } from "@/lib/engine/battle";
 import { DECK_SIZE } from "@/lib/engine/cards";
+import { ProtectedPage } from "@/components/ProtectedPage";
 
 type DeckCard = { quantity: number; cardDefinition: BattleCardSource };
 type Deck = { id: string; name: string; deckCards: DeckCard[] };
@@ -44,46 +45,50 @@ export default function BattlePage() {
 
   if (battle) {
     return (
-      <div className="flex flex-col gap-4">
-        <BattleBoard initialState={battle} onFinish={() => {}} />
-        <button onClick={() => setBattle(null)} className="rounded-full bg-[var(--surface-2)] py-2 text-sm font-semibold">
-          Voltar
-        </button>
-      </div>
+      <ProtectedPage>
+        <div className="flex flex-col gap-4">
+          <BattleBoard initialState={battle} onFinish={() => {}} />
+          <button onClick={() => setBattle(null)} className="rounded-full bg-[var(--surface-2)] py-2 text-sm font-semibold">
+            Voltar
+          </button>
+        </div>
+      </ProtectedPage>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold">Batalha PvE</h1>
+    <ProtectedPage>
+      <div className="flex flex-col gap-4">
+        <h1 className="text-xl font-bold">Batalha PvE</h1>
 
-      {decks.length === 0 ? (
-        <p className="text-sm text-[var(--muted)]">
-          Você precisa de um deck com {DECK_SIZE} cartas para batalhar. Monte um em{" "}
-          <a href="/decks" className="text-[var(--accent)] underline">
-            Decks
-          </a>
-          .
-        </p>
-      ) : (
-        <>
-          <label className="text-sm text-[var(--muted)]">Escolha seu deck</label>
-          <select
-            value={selectedDeckId ?? ""}
-            onChange={(e) => setSelectedDeckId(e.target.value)}
-            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
-          >
-            {decks.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-          <button onClick={startBattle} className="rounded-full bg-[var(--accent)] py-2 text-sm font-semibold text-white">
-            Iniciar batalha
-          </button>
-        </>
-      )}
-    </div>
+        {decks.length === 0 ? (
+          <p className="text-sm text-[var(--muted)]">
+            Você precisa de um deck com {DECK_SIZE} cartas para batalhar. Monte um em{" "}
+            <a href="/decks" className="text-[var(--accent)] underline">
+              Decks
+            </a>
+            .
+          </p>
+        ) : (
+          <>
+            <label className="text-sm text-[var(--muted)]">Escolha seu deck</label>
+            <select
+              value={selectedDeckId ?? ""}
+              onChange={(e) => setSelectedDeckId(e.target.value)}
+              className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+            >
+              {decks.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+            <button onClick={startBattle} className="rounded-full bg-[var(--accent)] py-2 text-sm font-semibold text-white">
+              Iniciar batalha
+            </button>
+          </>
+        )}
+      </div>
+    </ProtectedPage>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { DeckBuilder, OwnedCard } from "@/components/DeckBuilder";
 import { CardView } from "@/components/CardView";
+import { ProtectedPage } from "@/components/ProtectedPage";
 
 type DeckCard = { quantity: number; cardDefinition: OwnedCard };
 type Deck = { id: string; name: string; deckCards: DeckCard[] };
@@ -53,47 +54,47 @@ export default function DecksPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Decks</h1>
-        <button
-          onClick={() => setShowBuilder((v) => !v)}
-          className="rounded-full bg-[var(--surface-2)] px-4 py-1.5 text-sm font-semibold"
-        >
-          {showBuilder ? "Cancelar" : "+ Novo deck"}
-        </button>
-      </div>
-
-      {error && <p className="text-sm text-red-400">{error}</p>}
-
-      {showBuilder ? (
-        ownedCards.length === 0 ? (
-          <p className="text-sm text-[var(--muted)]">
-            Você ainda não possui cartas. Abra pacotes primeiro.
-          </p>
-        ) : (
-          <DeckBuilder ownedCards={ownedCards} onSave={handleSave} saving={saving} />
-        )
-      ) : (
-        <div className="flex flex-col gap-4">
-          {decks.length === 0 && <p className="text-sm text-[var(--muted)]">Nenhum deck salvo ainda.</p>}
-          {decks.map((deck) => (
-            <div key={deck.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="font-semibold">{deck.name}</span>
-                <button onClick={() => handleDelete(deck.id)} className="text-xs text-red-400">
-                  Excluir
-                </button>
-              </div>
-              <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-                {deck.deckCards.map((dc) => (
-                  <CardView key={dc.cardDefinition.id} card={dc.cardDefinition} size="sm" badge={`x${dc.quantity}`} />
-                ))}
-              </div>
-            </div>
-          ))}
+    <ProtectedPage>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold">Decks</h1>
+          <button
+            onClick={() => setShowBuilder((v) => !v)}
+            className="rounded-full bg-[var(--surface-2)] px-4 py-1.5 text-sm font-semibold"
+          >
+            {showBuilder ? "Cancelar" : "+ Novo deck"}
+          </button>
         </div>
-      )}
-    </div>
+
+        {error && <div className="text-sm text-red-400">{error}</div>}
+
+        {showBuilder ? (
+          ownedCards.length === 0 ? (
+            <p className="text-sm text-[var(--muted)]">Você não possui nenhuma carta para construir um deck.</p>
+          ) : (
+            <DeckBuilder ownedCards={ownedCards} onSave={handleSave} saving={saving} />
+          )
+        ) : (
+          <div className="flex flex-col gap-4">
+            {decks.length === 0 && <p className="text-sm text-[var(--muted)]">Nenhum deck salvo ainda.</p>}
+            {decks.map((deck) => (
+              <div key={deck.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="font-semibold">{deck.name}</span>
+                  <button onClick={() => handleDelete(deck.id)} className="text-xs text-red-400">
+                    Excluir
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                  {deck.deckCards.map((dc) => (
+                    <CardView key={dc.cardDefinition.id} card={dc.cardDefinition} size="sm" badge={`x${dc.quantity}`} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </ProtectedPage>
   );
 }

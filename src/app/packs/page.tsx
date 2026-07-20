@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CardView, CardViewData } from "@/components/CardView";
+import { ProtectedPage } from "@/components/ProtectedPage";
 
 type Profile = { stamina: number; maxStamina: number; coins: number; nextPackAt: string | null };
 
@@ -39,34 +40,36 @@ export default function PacksPage() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 text-center">
-        <div className="text-sm text-[var(--muted)]">Stamina</div>
-        <div className="text-xl font-bold">
-          {profile ? `${profile.stamina}/${profile.maxStamina}` : "…"}
+    <ProtectedPage>
+      <div className="flex flex-col items-center gap-6">
+        <div className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 text-center">
+          <div className="text-sm text-[var(--muted)]">Stamina</div>
+          <div className="text-xl font-bold">
+            {profile ? `${profile.stamina}/${profile.maxStamina}` : "…"}
+          </div>
+          <p className="mt-1 text-xs text-[var(--muted)]">Um pacote grátis regenera a cada 12h.</p>
         </div>
-        <p className="mt-1 text-xs text-[var(--muted)]">Um pacote grátis regenera a cada 12h.</p>
+
+        <button
+          onClick={openPack}
+          disabled={loading || (profile !== null && profile.stamina < 1)}
+          className="rounded-full bg-[var(--accent)] px-8 py-3 font-semibold text-white transition-opacity disabled:opacity-40"
+        >
+          {loading ? "Abrindo..." : "Abrir pacote (5 cartas)"}
+        </button>
+
+        {error && <p className="text-sm text-red-400">{error}</p>}
+
+        {revealed && (
+          <div className="grid w-full grid-cols-3 gap-3 sm:grid-cols-5">
+            {revealed.map((card, i) => (
+              <div key={i} className="card-reveal" style={{ animationDelay: `${i * 120}ms`, animationFillMode: "backwards" }}>
+                <CardView card={card} size="sm" />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      <button
-        onClick={openPack}
-        disabled={loading || (profile !== null && profile.stamina < 1)}
-        className="rounded-full bg-[var(--accent)] px-8 py-3 font-semibold text-white transition-opacity disabled:opacity-40"
-      >
-        {loading ? "Abrindo..." : "Abrir pacote (5 cartas)"}
-      </button>
-
-      {error && <p className="text-sm text-red-400">{error}</p>}
-
-      {revealed && (
-        <div className="grid w-full grid-cols-3 gap-3 sm:grid-cols-5">
-          {revealed.map((card, i) => (
-            <div key={i} className="card-reveal" style={{ animationDelay: `${i * 120}ms`, animationFillMode: "backwards" }}>
-              <CardView card={card} size="sm" />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    </ProtectedPage>
   );
 }
