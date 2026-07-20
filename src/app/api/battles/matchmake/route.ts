@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
 import { prisma } from "@/lib/db";
+import { getUserIdFromAuthHeader } from "@/lib/auth-server";
 
 export const dynamic = "force-dynamic";
 
@@ -8,13 +8,11 @@ export async function POST(req: Request) {
   try {
     const { deckId } = await req.json();
 
-    // Get current user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    // Get current user from Authorization header
+    const authHeader = req.headers.get("authorization");
+    const userId = getUserIdFromAuthHeader(authHeader);
 
-    if (authError || !user) {
+    if (!userId) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
@@ -31,7 +29,7 @@ export async function POST(req: Request) {
       select: { profileId: true },
     });
 
-    if (!deck || deck.profileId !== user.id) {
+    if (!deck || deck.profileId !== userId) {
       return NextResponse.json(
         { error: "Deck não encontrado" },
         { status: 404 }
@@ -41,7 +39,7 @@ export async function POST(req: Request) {
     // Check if already in queue
     const existingMatch = await prisma.battleMatch.findFirst({
       where: {
-        player1Id: user.id,
+        player1Id: userId,
         status: "waiting",
       },
     });
@@ -59,7 +57,7 @@ export async function POST(req: Request) {
       where: {
         status: "waiting",
         player1Id: {
-          not: user.id,
+          not: userId,
         },
       },
       orderBy: {
@@ -72,7 +70,7 @@ export async function POST(req: Request) {
       const match = await prisma.battleMatch.update({
         where: { id: opponent.id },
         data: {
-          player2Id: user.id,
+          player2Id: userId,
           player2DeckId: deckId,
           status: "active",
           startedAt: new Date(),
@@ -90,7 +88,7 @@ export async function POST(req: Request) {
     // No opponent found, add to queue
     const newMatch = await prisma.battleMatch.create({
       data: {
-        player1Id: user.id,
+        player1Id: userId,
         player1DeckId: deckId,
         status: "waiting",
       },

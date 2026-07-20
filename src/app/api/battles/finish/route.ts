@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { supabase } from "@/lib/supabase";
+import { getUserIdFromAuthHeader } from "@/lib/auth-server";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +18,10 @@ export async function POST(req: Request) {
   try {
     const { matchId, winnerId } = await req.json();
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const authHeader = req.headers.get("authorization");
+    const userId = getUserIdFromAuthHeader(authHeader);
 
-    if (authError || !user) {
+    if (!userId) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
@@ -39,7 +37,7 @@ export async function POST(req: Request) {
     }
 
     // Verify user is part of this match
-    if (match.player1Id !== user.id && match.player2Id !== user.id) {
+    if (match.player1Id !== userId && match.player2Id !== userId) {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 

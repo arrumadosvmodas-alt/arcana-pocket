@@ -36,17 +36,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, displayName: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
+    if (!email || !password || !displayName) {
+      throw new Error("Email, senha e nome são obrigatórios");
+    }
+
+    // Check if email already exists
+    try {
+      const { data: { user: existingUser }, error: signInError } =
+        await supabase.auth.signInWithPassword({ email, password });
+
+      if (!signInError && existingUser) {
+        throw new Error("Este email já está registrado. Faça login em vez de registrar novamente.");
+      }
+    } catch (err: any) {
+      if (err.message && err.message.includes("já está registrado")) {
+        throw err;
+      }
+      // Continue if user doesn't exist (expected)
+    }
+
+    const { error, data } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      if (error.message.includes("already registered")) {
+        throw new Error("Este email já está registrado");
+      }
+      throw error;
+    }
+
+    // Wait a moment for user to be created
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // Create profile after signup
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await fetch("/api/auth/create-profile", {
+      const profileRes = await fetch("/api/auth/create-profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id, displayName, email }),
       });
+
+      if (!profileRes.ok) {
+        const err = await profileRes.json();
+        throw new Error(err.error || "Erro ao criar perfil");
+      }
+    } else {
+      throw new Error("Erro ao criar conta");
     }
   };
 
