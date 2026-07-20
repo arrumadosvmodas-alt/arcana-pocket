@@ -69,14 +69,14 @@ const NAMES: Record<Element, string[]> = {
   ],
 };
 
-function rarityForIndex(i: number, total: number): Rarity {
+function rarityForIndex(i: number, total: number): "COMMON" | "RARE" | "EPIC" {
   // ~15% épicas, ~25% raras, ~60% comuns (mais viável para construir decks)
   if (i >= total - Math.ceil(total * 0.15)) return "EPIC";
   if (i >= total - Math.ceil(total * 0.40)) return "RARE";
   return "COMMON";
 }
 
-function statsFor(i: number, total: number, rarity: Rarity) {
+function statsFor(i: number, total: number, rarity: "COMMON" | "RARE" | "EPIC") {
   // Custo: 1-6, distribuído ao longo do catálogo
   const cost = Math.min(6, Math.max(1, Math.ceil((i / total) * 6)));
 
