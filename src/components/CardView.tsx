@@ -32,36 +32,36 @@ export function CardView({
   const shineClass = card.rarity !== "COMMON" ? "card-shine" : "";
   const glowClass = card.rarity === "EPIC" ? "card-glow" : "";
 
+  const isHighRarity = card.rarity === "EPIC";
+  const neonClass = 
+    card.element === "FIRE" ? "border-neon-fire" :
+    card.element === "WATER" ? "border-neon-water" :
+    card.element === "EARTH" ? "border-neon-earth" :
+    "border-neon-air";
+
   return (
     <div
-      className={`relative flex flex-col justify-between overflow-hidden rounded-2xl border-[3.5px] border-white transition-all duration-200 hover:-translate-y-1.5 hover:rotate-1 ${padding} ${glowClass} ${
+      className={`nft-card-container ${neonClass} ${
         dimmed ? "opacity-45 scale-95" : ""
-      }`}
-      style={{
-        background: `linear-gradient(145deg, ${elementTheme.color}35 0%, var(--surface) 65%)`,
-        boxShadow: `0 6px 0 var(--border-dark), 0 12px 18px rgba(0,0,0,0.45)`,
-        ["--rarity-glow" as string]: rarityTheme.color,
-      }}
+      } ${padding}`}
     >
-      {shineClass && <div className={shineClass} aria-hidden="true" />}
+      {/* Holographic animated overlay for high rarity cards */}
+      {isHighRarity && <div className="nft-holo-shine" aria-hidden="true" />}
       
       {badge && (
-        <span className="absolute -right-1 -top-1 rounded-full border-2 border-white bg-pink-500 px-2 py-0.5 text-[11px] font-extrabold text-white shadow-md">
+        <span className="absolute -right-1 -top-1 rounded-full border border-pink-400 bg-pink-900/90 px-2 py-0.5 text-[10px] font-black text-pink-200 shadow-[0_0_8px_rgba(236,72,153,0.5)] z-20">
           {badge}
         </span>
       )}
 
-      {/* Header: Name & Cost */}
+      {/* Header: Name & Mana Cost */}
       <div className="flex items-center justify-between gap-1.5 z-10">
         <span className={`font-bold tracking-tight text-white drop-shadow-sm ${nameSize}`}>{card.name}</span>
         
-        {/* Cost Badge */}
+        {/* Mana Cost Badge */}
         <span
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-white text-xs font-black text-white shadow-sm"
-          style={{ 
-            background: `linear-gradient(135deg, ${elementTheme.color}, #090b14)`,
-            boxShadow: '0 2px 0 var(--border-dark)'
-          }}
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-400 bg-cyan-950/80 text-[11px] font-black text-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+          title="Mana"
         >
           {card.cost}
         </span>
@@ -73,32 +73,32 @@ export function CardView({
       </div>
 
       {/* Info: Element & Stars */}
-      <div className="flex items-center justify-between text-[11px] font-bold z-10">
+      <div className="flex items-center justify-between text-[10px] font-bold z-10">
         <span 
-          className="px-2 py-0.5 rounded-full border border-white/20 text-white text-[10px] uppercase tracking-wide"
-          style={{ backgroundColor: `${elementTheme.color}50` }}
+          className="px-2 py-0.5 rounded-full border border-white/10 text-white text-[9px] uppercase tracking-wide"
+          style={{ backgroundColor: `${elementTheme.color}30` }}
         >
           {elementTheme.label}
         </span>
-        <span style={{ color: rarityTheme.color }} className="drop-shadow-sm font-black text-[10px]">
+        <span style={{ color: rarityTheme.color }} className="drop-shadow-sm font-black text-[9px]">
           {"★".repeat(rarityTheme.stars)}
         </span>
       </div>
 
-      {/* Stats Section: Attack & Health */}
+      {/* Stats Section: Attack & Defense */}
       <div className="mt-2.5 flex items-center gap-2 z-10">
-        {/* Attack Sticker */}
-        <span className={`flex items-center gap-1 rounded-lg border-2 border-white px-2 py-0.5 text-xs font-black text-white shadow-sm ${
-          card.upgradeAttack && card.upgradeAttack > 0 ? "bg-amber-600 ring-2 ring-yellow-300" : "bg-amber-500"
+        {/* Attack Icon */}
+        <span className={`flex items-center gap-1 rounded-lg border border-amber-500/20 bg-amber-950/50 px-2 py-0.5 text-xs font-black text-amber-400 shadow-sm ${
+          card.upgradeAttack && card.upgradeAttack > 0 ? "ring-1 ring-yellow-400" : ""
         }`}>
           ⚔ {card.attack}
           {card.upgradeAttack && card.upgradeAttack > 0 && <span className="text-[10px] text-yellow-300 ml-0.5">+{card.upgradeAttack}</span>}
         </span>
-        {/* Health Sticker */}
-        <span className={`flex items-center gap-1 rounded-lg border-2 border-white px-2 py-0.5 text-xs font-black text-white shadow-sm ${
-          card.upgradeHealth && card.upgradeHealth > 0 ? "bg-emerald-600 ring-2 ring-green-300" : "bg-emerald-500"
+        {/* Defense Icon */}
+        <span className={`flex items-center gap-1 rounded-lg border border-emerald-500/20 bg-emerald-950/50 px-2 py-0.5 text-xs font-black text-emerald-400 shadow-sm ${
+          card.upgradeHealth && card.upgradeHealth > 0 ? "ring-1 ring-green-400" : ""
         }`}>
-          ♥ {card.health}
+          🛡 {card.health}
           {card.upgradeHealth && card.upgradeHealth > 0 && <span className="text-[10px] text-green-300 ml-0.5">+{card.upgradeHealth}</span>}
         </span>
       </div>

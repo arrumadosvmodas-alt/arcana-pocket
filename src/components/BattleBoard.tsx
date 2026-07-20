@@ -60,17 +60,12 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
 
   function handlePlay(lane: number) {
     if (!selectedCardId || state.playerPlayedThisRound) return;
-    const next = playCard(state, "player", selectedCardId, lane);
-    setState(next);
+    
+    // 1. Play card for player
+    let next = playCard(state, "player", selectedCardId, lane);
     setSelectedCardId(null);
-  }
 
-  function handlePass() {
-    setState((s) => passRound(s, "player"));
-  }
-
-  function handleAdvance() {
-    let next = state;
+    // 2. Play card for bot immediately and end round
     const botAction = botChooseAction(next);
     if (botAction) {
       next = playCard(next, "bot", botAction.cardId, botAction.lane);
@@ -78,6 +73,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
       next = passRound(next, "bot");
     }
     next = endRound(next);
+
     setState(next);
     if (next.status !== "ongoing") {
       notifyBattleEnd(next.status);
@@ -85,7 +81,28 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
     }
   }
 
-  const canAdvance = state.playerPlayedThisRound || state.playerHand.every((c) => c.cost > state.energy);
+  function handlePass() {
+    // 1. Pass player turn
+    let next = passRound(state, "player");
+
+    // 2. Play card for bot immediately and end round
+    const botAction = botChooseAction(next);
+    if (botAction) {
+      next = playCard(next, "bot", botAction.cardId, botAction.lane);
+    } else {
+      next = passRound(next, "bot");
+    }
+    next = endRound(next);
+
+    setState(next);
+    if (next.status !== "ongoing") {
+      notifyBattleEnd(next.status);
+      onFinish(next);
+    }
+  }
+
+  const selectedPlayerCard = selectedCardId ? state.playerHand.find((c) => c.id === selectedCardId) : null;
+  const isAffordable = selectedPlayerCard ? selectedPlayerCard.cost <= state.energy : false;
 
   return (
     <div className="flex flex-col gap-5 p-4 rounded-2xl border-3 border-black bg-[var(--surface)] shadow-lg">
@@ -93,7 +110,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
       {/* Header Info */}
       <div className="flex items-center justify-between text-xs font-black bg-black/20 p-2.5 rounded-xl border border-white/10">
         <span className="text-white">
-          🔋 ENERGIA: <span className="text-amber-400 text-sm">{state.energy}/{state.maxEnergy}</span>
+          🔮 MANA: <span className="text-cyan-400 text-sm">{state.energy}/{state.maxEnergy}</span>
         </span>
         <span className="text-[var(--muted)]">
           RODADA: <span className="text-white text-sm">{state.round}/{state.maxRounds}</span>
@@ -131,14 +148,14 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
           <button
             key={i}
             onClick={() => handlePlay(i)}
-            disabled={!selectedCardId || lane.player !== null || state.playerPlayedThisRound}
+            disabled={!selectedCardId || lane.player !== null || state.playerPlayedThisRound || !isAffordable}
             className="flex h-24 items-center justify-center rounded-xl border-3 border-dashed border-[var(--border)] bg-[var(--surface-2)] p-1.5 transition-all enabled:hover:border-[var(--accent)] enabled:hover:scale-102 enabled:active:scale-98 disabled:opacity-90 cursor-pointer"
           >
             {lane.player ? (
               <MiniCard card={lane.player} />
             ) : (
               <span className="text-[10px] font-black text-pink-400 uppercase tracking-wider animate-pulse">
-                {selectedCardId ? "Jogar Aqui" : "Vazio"}
+                {selectedCardId ? (isAffordable ? "Jogar Aqui" : "Sem Mana") : "Vazio"}
               </span>
             )}
           </button>
@@ -156,7 +173,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
             <button
               key={card.id}
               onClick={() => setSelectedCardId((id) => (id === card.id ? null : card.id))}
-              disabled={card.cost > state.energy || state.playerPlayedThisRound}
+              disabled={state.playerPlayedThisRound}
               className={`w-24 shrink-0 rounded-xl transition-all duration-150 cursor-pointer ${
                 isSelected ? "-translate-y-2" : ""
               } disabled:opacity-40 disabled:cursor-not-allowed`}
@@ -166,7 +183,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
             >
               <MiniCard card={card} />
               <div className="mt-1.5 text-center text-[10px] font-extrabold text-[var(--accent-2)] bg-black/35 py-0.5 rounded-md">
-                CUSTO: {card.cost}
+                MANA: {card.cost}
               </div>
             </button>
           );
@@ -178,16 +195,9 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
         <button 
           onClick={handlePass} 
           disabled={state.playerPlayedThisRound} 
-          className="btn-sticker btn-sticker-sec flex-1 text-xs sm:text-sm py-2.5"
+          className="btn-sticker btn-sticker-sec w-full text-xs sm:text-sm py-2.5"
         >
           Passar Turno
-        </button>
-        <button 
-          onClick={handleAdvance} 
-          disabled={!canAdvance} 
-          className="btn-sticker btn-sticker-yellow flex-1 text-xs sm:text-sm py-2.5"
-        >
-          Avançar Rodada
         </button>
       </div>
 
