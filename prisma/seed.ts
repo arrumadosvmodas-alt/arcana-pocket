@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { Element } from "../src/lib/engine/cards";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

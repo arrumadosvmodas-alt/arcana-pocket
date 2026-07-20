@@ -1,0 +1,13 @@
+"use client";
+
+import { AuthProvider } from "@/contexts/AuthContext";
+import { NavBar } from "./NavBar";
+
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthProvider>
+      <NavBar />
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">{children}</main>
+    </AuthProvider>
+  );
+}
