@@ -2,15 +2,16 @@ import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Server-side client with anon key for getting user
-const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error("Missing Supabase environment variables");
+  }
 
-// Server-side client (uses service role key for admin operations)
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
 
 // Get user from request (preferred method)
 export async function getUserFromRequest(req: NextRequest): Promise<string | undefined> {
@@ -70,6 +71,8 @@ export async function getCurrentUserId(): Promise<string | null> {
     if (!authToken) {
       return null;
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     const { data, error } = await supabaseAdmin.auth.admin.getUserById(
       authToken.split(".")[0]
