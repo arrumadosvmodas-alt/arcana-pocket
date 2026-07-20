@@ -1,6 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { Element } from "../src/lib/engine/cards";
 
+const cardData = ELEMENTS.flatMap((element) => {
+  const names = NAMES[element];
+
+  return names.map((name, i) => {
+    // ...
+  });
+});
+
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
