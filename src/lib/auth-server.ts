@@ -55,8 +55,8 @@ export function getUserIdFromJWT(token: string): string | undefined {
   }
 }
 
-// Legacy: get user ID from auth header string
-export function getUserIdFromAuthHeader(authHeader?: string): string | undefined {
+// Legacy: get user ID from auth header string (accepts null from req.headers.get())
+export function getUserIdFromAuthHeader(authHeader: string | null | undefined): string | undefined {
   if (!authHeader) return undefined;
   const token = authHeader.replace("Bearer ", "");
   return getUserIdFromJWT(token);
