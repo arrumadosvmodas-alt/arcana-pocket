@@ -1,29 +1,34 @@
 import { PrismaClient } from "@prisma/client";
-import { Element } from "../src/lib/engine/cards";
+import { ELEMENTS, type Element } from "../src/lib/engine/cards";
 
-const cardData = ELEMENTS.flatMap((element) => {
-  const names = NAMES[element];
+const prisma = new PrismaClient();
 
-  return names.map((name, i) => {
-    // ...
-  });
-});
+const LOCAL_PROFILE_ID = "local-player";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+const NAMES: Record<Element, string[]> = {
+  // mantenha todos os nomes que já existiam
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "warn", "error"]
-        : ["error"],
+function rarityForIndex(index: number, total: number) {
+  // mantenha a implementação existente
+}
+
+async function main() {
+  await prisma.card.deleteMany();
+  await prisma.deck.deleteMany();
+  await prisma.profile.deleteMany();
+
+  const cardData = ELEMENTS.flatMap((element) => {
+    const names = NAMES[element];
+
+    return names.map((name, i) => {
+      const rarity = rarityForIndex(i, names.length);
+
+      // mantenha aqui o objeto original retornado
+    });
   });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+  // restante da função que utiliza cardData
 }
 
 export default prisma;
