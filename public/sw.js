@@ -2,8 +2,8 @@ const CACHE_NAME = "arcana-pocket-v1";
 const ASSETS = [
   "/",
   "/manifest.json",
-  "/icon-192.jpg",
-  "/icon-512.jpg",
+  "/icon-192.png",
+  "/icon-512.png",
 ];
 
 self.addEventListener("install", (e) => {
