@@ -122,18 +122,18 @@ function PvPContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-black text-white drop-shadow-sm uppercase tracking-wide border-b-4 border-black pb-2">
+      <h1 className="text-3xl font-black text-white drop-shadow-sm uppercase tracking-wide border-b border-white/10 pb-2">
         Batalha PvP Online ⚔️
       </h1>
 
       {error && (
-        <div className="rounded-xl border-2 border-red-500 bg-red-950/40 p-4 text-red-200 text-xs font-bold shadow-sm">
+        <div className="rounded-xl border border-red-500 bg-red-950/40 p-4 text-red-200 text-xs font-bold shadow-sm">
           ⚠️ {error}
         </div>
       )}
 
       {inviteId && status === "selecting" && (
-        <div className="rounded-2xl border-3 border-dashed border-pink-400 bg-pink-950/20 p-4 text-center font-bold text-white text-sm">
+        <div className="rounded-2xl border border-dashed border-pink-400 bg-pink-950/20 p-4 text-center font-bold text-white text-sm">
           👋 Você foi convidado para uma partida! Selecione seu deck abaixo para entrar na arena.
         </div>
       )}
@@ -156,7 +156,7 @@ function PvPContent() {
                   <button
                     key={deck.id}
                     onClick={() => setSelectedDeck(deck.id)}
-                    className={`w-full rounded-xl border-3 p-4 text-left font-black transition-all cursor-pointer ${
+                    className={`w-full rounded-xl border p-4 text-left font-black transition-all cursor-pointer ${
                       selectedDeck === deck.id
                         ? "border-[var(--accent)] bg-[var(--accent)]/15 scale-102"
                         : "border-[var(--border)] hover:border-[var(--accent)] bg-black/20"

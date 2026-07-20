@@ -104,7 +104,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
   const isAffordable = selectedPlayerCard ? selectedPlayerCard.cost <= state.energy : false;
 
   return (
-    <div className="flex flex-col gap-5 p-4 rounded-2xl border-3 border-black bg-[var(--surface)] shadow-lg">
+    <div className="flex flex-col gap-5 p-4 rounded-2xl border border-white/10 bg-slate-950/65 backdrop-blur-md shadow-2xl">
       
       {/* Header Info */}
       <div className="flex items-center justify-between text-xs font-black bg-black/20 p-2.5 rounded-xl border border-white/10">
@@ -126,8 +126,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
         {state.lanes.map((lane, i) => (
           <div 
             key={i} 
-            className="flex h-24 items-center justify-center rounded-xl border-[2.5px] border-black bg-[var(--surface-2)] p-1.5 shadow-inner"
-            style={{ boxShadow: 'inset 0 4px 6px rgba(0,0,0,0.3)' }}
+            className="flex h-24 items-center justify-center rounded-xl border border-white/10 bg-[var(--surface-2)] p-1.5 shadow-inner"
           >
             {lane.bot ? (
               <MiniCard card={lane.bot} />
@@ -139,7 +138,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
       </div>
 
       {/* Divider */}
-      <div className="border-t-2 border-dashed border-black/30 my-1" />
+      <div className="border-t border-dashed border-white/10 my-1" />
 
       {/* Player Lanes Board */}
       <div className="grid grid-cols-3 gap-3">
@@ -148,7 +147,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
             key={i}
             onClick={() => handlePlay(i)}
             disabled={!selectedCardId || lane.player !== null || state.playerPlayedThisRound || !isAffordable}
-            className="flex h-24 items-center justify-center rounded-xl border-3 border-dashed border-[var(--border)] bg-[var(--surface-2)] p-1.5 transition-all enabled:hover:border-[var(--accent)] enabled:hover:scale-102 enabled:active:scale-98 disabled:opacity-90 cursor-pointer"
+            className="flex h-24 items-center justify-center rounded-xl border border-dashed border-white/20 bg-[var(--surface-2)] p-1.5 transition-all enabled:hover:border-[var(--accent)] enabled:hover:scale-102 enabled:active:scale-98 disabled:opacity-90 cursor-pointer"
           >
             {lane.player ? (
               <MiniCard card={lane.player} />
@@ -165,7 +164,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
       <LifeBar label="⭐ VOCÊ" value={state.playerLife} max={state.startingLife} color="#2ec4b6" />
 
       {/* Player Hand */}
-      <div className="flex gap-2 overflow-x-auto rounded-2xl border-[3px] border-black bg-black/10 p-3 shadow-inner">
+      <div className="flex gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/45 p-3 shadow-inner">
         {state.playerHand.map((card) => {
           const isSelected = selectedCardId === card.id;
           return (
@@ -212,7 +211,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
 
       {/* Final Battle Status overlay */}
       {state.status !== "ongoing" && (
-        <div className="rounded-2xl border-3 border-black bg-[var(--surface-2)] p-4 text-center font-black text-white text-lg shadow-lg">
+        <div className="rounded-2xl border border-white/10 bg-[#161c36]/90 p-4 text-center font-black text-white text-lg shadow-lg">
           {state.status === "player_win" && "VOCÊ VENCEU! 🎉"}
           {state.status === "bot_win" && "VOCÊ PERDEU. 💀"}
           {state.status === "draw" && "EMPATE! 🤝"}
@@ -222,7 +221,7 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
       {/* Surprise Box Reward Modal */}
       {showRewardModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 animate-fade-in">
-          <div className="w-full max-w-sm sticker-container p-6 text-center shadow-2xl relative border-4 border-black rounded-3xl bg-[var(--surface)]">
+          <div className="w-full max-w-sm sticker-container p-6 text-center shadow-2xl relative border border-white/10 rounded-3xl bg-slate-900/90 backdrop-blur-md">
             <h3 className="text-2xl font-black text-yellow-400 mb-4 uppercase tracking-wider">
               🎁 CAIXA SURPRESA! 🎁
             </h3>
