@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BattleCard, BattleState, botChooseAction, endRound, passRound, playCard } from "@/lib/engine/battle";
 import { ELEMENT_THEME, RARITY_THEME } from "@/lib/engine/cards";
+import { authFetch } from "@/lib/api";
 
 function MiniCard({ card }: { card: BattleCard }) {
   const elementTheme = ELEMENT_THEME[card.element];
@@ -32,14 +33,28 @@ function MiniCard({ card }: { card: BattleCard }) {
 export function BattleBoard({ initialState, onFinish }: { initialState: BattleState; onFinish: (state: BattleState) => void }) {
   const [state, setState] = useState(initialState);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [reward, setReward] = useState<any>(null);
+  const [boxOpened, setBoxOpened] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState(false);
 
   async function notifyBattleEnd(status: BattleState["status"]) {
     if (status !== "ongoing") {
-      await fetch("/api/battle/finish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      }).catch(() => {});
+      try {
+        const res = await authFetch("/api/battle/finish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.reward) {
+            setReward(data.reward);
+            setShowRewardModal(true);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 
@@ -192,6 +207,53 @@ export function BattleBoard({ initialState, onFinish }: { initialState: BattleSt
           {state.status === "player_win" && "VOCÊ VENCEU! 🎉"}
           {state.status === "bot_win" && "VOCÊ PERDEU. 💀"}
           {state.status === "draw" && "EMPATE! 🤝"}
+        </div>
+      )}
+
+      {/* Surprise Box Reward Modal */}
+      {showRewardModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 animate-fade-in">
+          <div className="w-full max-w-sm sticker-container p-6 text-center shadow-2xl relative border-4 border-black rounded-3xl bg-[var(--surface)]">
+            <h3 className="text-2xl font-black text-yellow-400 mb-4 uppercase tracking-wider">
+              🎁 CAIXA SURPRESA! 🎁
+            </h3>
+            
+            {!boxOpened ? (
+              <div className="flex flex-col items-center gap-4 py-4">
+                <svg className="w-24 h-24 text-pink-500 animate-bounce" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 6h-3.18c.11-.31.18-.65.18-1a2.5 2.5 0 0 0-5-1.5c-.32 0-.62-.07-.9-.18A2.5 2.5 0 0 0 8.5 2c-.35 0-.69.07-1 .18V6H4c-1.1 0-2 .9-2 2v2c0 .55.45 1 1 1h18c.55 0 1-.45 1-1V8c0-1.1-.9-2-2-2m-8-1.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .09-.07.2-.18.33A2.43 2.43 0 0 0 13.5 5h-1.5V4.5M8.5 3c.83 0 1.5.67 1.5 1.5V5H8.5c-.83 0-1.5-.67-1.5-1.5 0-.09.07-.2.18-.33A2.43 2.43 0 0 0 8.5 3M3 12v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8H3m8 8H5v-6h6v6m8 0h-6v-6h6v6z"/>
+                </svg>
+                <p className="text-xs font-bold text-gray-300">Você ganhou uma caixa surpresa pela sua vitória!</p>
+                <button
+                  onClick={() => setBoxOpened(true)}
+                  className="btn-sticker btn-sticker-yellow mt-2 px-6 py-2.5 text-sm w-full"
+                >
+                  Abrir Caixa
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-4 py-4">
+                <div className="text-6xl animate-pulse">
+                  {reward?.type === "COINS" && "🪙"}
+                  {reward?.type === "GEMS" && "💎"}
+                  {reward?.type === "CARD" && "🃏"}
+                  {reward?.type === "UPGRADE" && "🧬"}
+                </div>
+                <div className="text-sm font-black text-white px-4 py-3.5 bg-black/40 rounded-xl border border-white/10">
+                  {reward?.label}
+                </div>
+                <button
+                  onClick={() => {
+                    setShowRewardModal(false);
+                    setBoxOpened(false);
+                  }}
+                  className="btn-sticker mt-2 px-6 py-2.5 text-sm w-full"
+                >
+                  Pegar Recompensa
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

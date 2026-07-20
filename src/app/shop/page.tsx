@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CardView, CardViewData } from "@/components/CardView";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { authFetch } from "@/lib/api";
 
 type Profile = { gems: number; coins: number };
 type ShopPackage = { id: string; name: string; description: string; gemPrice: number; cardsCount: number };
@@ -15,12 +16,12 @@ export default function ShopPage() {
   const [error, setError] = useState<string | null>(null);
 
   async function loadProfile() {
-    const res = await fetch("/api/profile");
+    const res = await authFetch("/api/profile");
     if (res.ok) setProfile(await res.json());
   }
 
   useEffect(() => {
-    Promise.all([loadProfile(), fetch("/api/shop/packages").then((r) => r.json()).then(setPackages)]);
+    Promise.all([loadProfile(), authFetch("/api/shop/packages").then((r) => r.json()).then(setPackages)]);
   }, []);
 
   async function buyPackage(pkg: ShopPackage) {
@@ -28,7 +29,7 @@ export default function ShopPage() {
     setError(null);
     setRevealed(null);
     try {
-      const res = await fetch("/api/shop/buy", {
+      const res = await authFetch("/api/shop/buy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shopPackageId: pkg.id }),

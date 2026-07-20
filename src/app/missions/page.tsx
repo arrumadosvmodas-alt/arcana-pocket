@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { authFetch } from "@/lib/api";
 
 type Mission = {
   id: string;
@@ -22,9 +23,9 @@ export default function MissionsPage() {
 
   async function loadMissions() {
     // Sync card count mission
-    await fetch("/api/missions/sync-cards", { method: "POST" }).catch(() => {});
+    await authFetch("/api/missions/sync-cards", { method: "POST" }).catch(() => {});
 
-    const res = await fetch("/api/missions");
+    const res = await authFetch("/api/missions");
     if (res.ok) setMissions(await res.json());
     setLoading(false);
   }
@@ -35,7 +36,7 @@ export default function MissionsPage() {
 
   async function claimMission(id: string) {
     setClaiming(id);
-    const res = await fetch(`/api/missions/${id}/claim`, { method: "POST" });
+    const res = await authFetch(`/api/missions/${id}/claim`, { method: "POST" });
     if (res.ok) {
       await loadMissions();
     }

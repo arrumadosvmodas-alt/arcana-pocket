@@ -28,7 +28,7 @@ export const PACK_SLOT_ODDS: { rarity: Rarity; weight: number }[] = [
 ];
 
 export const PACK_SIZE = 5;
-export const DECK_SIZE = 20;
+export const DECK_SIZE = 15;
 export const MAX_COPIES_PER_CARD_IN_DECK = 3;
 export const FREE_PACK_INTERVAL_HOURS = 12;
 export const STARTER_COINS = 500;

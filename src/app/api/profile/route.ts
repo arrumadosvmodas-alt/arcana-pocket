@@ -1,20 +1,22 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { LOCAL_PROFILE_ID, computeStaminaRegen } from "@/lib/player";
+import { computeStaminaRegen } from "@/lib/player";
 import { FREE_PACK_INTERVAL_HOURS } from "@/lib/engine/cards";
+import { getProfileIdFromRequest } from "@/lib/auth";
 
-export async function GET() {
-  const wallet = await prisma.wallet.findUnique({ where: { profileId: LOCAL_PROFILE_ID } });
-  const profile = await prisma.profile.findUnique({ where: { id: LOCAL_PROFILE_ID } });
+export async function GET(req: Request) {
+  const profileId = await getProfileIdFromRequest(req);
+  const wallet = await prisma.wallet.findUnique({ where: { profileId } });
+  const profile = await prisma.profile.findUnique({ where: { id: profileId } });
 
   if (!wallet || !profile) {
-    return NextResponse.json({ error: "Perfil local não encontrado. Rode o seed." }, { status: 404 });
+    return NextResponse.json({ error: "Perfil não encontrado." }, { status: 404 });
   }
 
   const regen = computeStaminaRegen(wallet);
   if (regen.stamina !== wallet.stamina) {
     await prisma.wallet.update({
-      where: { profileId: LOCAL_PROFILE_ID },
+      where: { profileId },
       data: { stamina: regen.stamina, staminaUpdatedAt: regen.staminaUpdatedAt },
     });
   }

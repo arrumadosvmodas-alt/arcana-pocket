@@ -1,23 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { LOCAL_PROFILE_ID } from "@/lib/player";
+import { getProfileIdFromRequest } from "@/lib/auth";
 
-export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const profileId = await getProfileIdFromRequest(req);
 
   try {
     const result = await prisma.$transaction(async (tx) => {
       const pm = await tx.playerMission.findUnique({ where: { id }, include: { mission: true } });
       if (!pm) throw new Error("NOT_FOUND");
-      if (pm.profileId !== LOCAL_PROFILE_ID) throw new Error("UNAUTHORIZED");
+      if (pm.profileId !== profileId) throw new Error("UNAUTHORIZED");
       if (pm.claimedAt) throw new Error("ALREADY_CLAIMED");
       if (pm.progress < pm.mission.target) throw new Error("NOT_COMPLETE");
 
-      const wallet = await tx.wallet.findUnique({ where: { profileId: LOCAL_PROFILE_ID } });
+      const wallet = await tx.wallet.findUnique({ where: { profileId } });
       if (!wallet) throw new Error("NO_WALLET");
 
       await tx.wallet.update({
-        where: { profileId: LOCAL_PROFILE_ID },
+        where: { profileId },
         data: {
           coins: wallet.coins + pm.mission.coinsReward,
           gems: wallet.gems + pm.mission.gemsReward,

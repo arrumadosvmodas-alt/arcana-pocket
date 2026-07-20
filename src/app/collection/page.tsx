@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CardView } from "@/components/CardView";
 import { ELEMENTS, RARITIES, Element, Rarity } from "@/lib/engine/cards";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { authFetch } from "@/lib/api";
 
 type CardWithOwned = {
   id: string;
@@ -25,7 +26,7 @@ export default function CollectionPage() {
   const [onlyOwned, setOnlyOwned] = useState(false);
 
   useEffect(() => {
-    fetch("/api/cards")
+    authFetch("/api/cards")
       .then((r) => r.json())
       .then((data) => setCards(data))
       .finally(() => setLoading(false));

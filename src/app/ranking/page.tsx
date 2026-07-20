@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { authFetch } from "@/lib/api";
 
 type Ranking = {
   position: number;
@@ -31,7 +32,7 @@ function RankingContent() {
 
   async function loadRankings() {
     try {
-      const res = await fetch("/api/ranking");
+      const res = await authFetch("/api/ranking");
       if (res.ok) {
         const data = await res.json();
         setRankings(data.rankings);

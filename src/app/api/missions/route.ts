@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { LOCAL_PROFILE_ID } from "@/lib/player";
+import { getProfileIdFromRequest } from "@/lib/auth";
 import type { PlayerMission, Mission } from "@prisma/client";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const profileId = await getProfileIdFromRequest(req);
   const today = new Date().toISOString().split("T")[0];
 
   const playerMissions = await prisma.playerMission.findMany({
-    where: { profileId: LOCAL_PROFILE_ID, date: today },
+    where: { profileId, date: today },
     include: { mission: true },
     orderBy: { mission: { createdAt: "asc" } },
   });

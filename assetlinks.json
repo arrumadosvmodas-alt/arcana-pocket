@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.arcana_pocket.twa",
+        "sha256_cert_fingerprints": ["93:1C:77:4F:B3:A4:B6:69:BE:12:32:78:78:01:34:5F:C0:92:A7:41:9C:47:AF:75:D1:28:C0:82:06:FB:AC:9F"]
+      }
+    }]

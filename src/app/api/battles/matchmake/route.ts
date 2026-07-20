@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { deckId } = await req.json();
+    const { deckId, inviteMatchId } = await req.json();
 
     // Get current user from Authorization header
     const authHeader = req.headers.get("authorization");
@@ -34,6 +34,38 @@ export async function POST(req: Request) {
         { error: "Deck não encontrado" },
         { status: 404 }
       );
+    }
+
+    // Join invite match room if inviteMatchId is present
+    if (inviteMatchId) {
+      const inviteMatch = await prisma.battleMatch.findUnique({
+        where: { id: inviteMatchId },
+      });
+      if (!inviteMatch) {
+        return NextResponse.json({ error: "Sala de convite não encontrada." }, { status: 404 });
+      }
+      if (inviteMatch.status !== "waiting") {
+        return NextResponse.json({ error: "Esta partida já começou ou expirou." }, { status: 400 });
+      }
+      if (inviteMatch.player1Id === userId) {
+        return NextResponse.json({ error: "Você não pode jogar contra você mesmo." }, { status: 400 });
+      }
+
+      const match = await prisma.battleMatch.update({
+        where: { id: inviteMatchId },
+        data: {
+          player2Id: userId,
+          player2DeckId: deckId,
+          status: "active",
+          startedAt: new Date(),
+        },
+      });
+      return NextResponse.json({
+        matchId: match.id,
+        status: "matched",
+        opponent: inviteMatch.player1Id,
+        message: "Conectado ao oponente!",
+      });
     }
 
     // Check if already in queue

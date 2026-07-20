@@ -28,6 +28,7 @@ export type BattleState = {
   playerLife: number;
   botLife: number;
   startingLife: number;
+  botStartingLife?: number;
   playerDeck: BattleCard[];
   botDeck: BattleCard[];
   playerHand: BattleCard[];
@@ -37,6 +38,7 @@ export type BattleState = {
   status: "ongoing" | "player_win" | "bot_win" | "draw";
   playerPlayedThisRound: boolean;
   botPlayedThisRound: boolean;
+  difficulty?: "EASY" | "MEDIUM" | "HARD";
 };
 
 export type BattleCardSource = {
@@ -76,7 +78,8 @@ function expandDeck(cards: { card: BattleCardSource; quantity: number }[]): Batt
 export function createBattle(
   playerCards: { card: BattleCardSource; quantity: number }[],
   botCards: { card: BattleCardSource; quantity: number }[],
-  seed: string
+  seed: string,
+  difficulty: "EASY" | "MEDIUM" | "HARD" = "MEDIUM"
 ): BattleState {
   const rng = mulberry32(seedFromString(seed));
 
@@ -89,14 +92,17 @@ export function createBattle(
   const playerHand = playerDeck.splice(0, HAND_SIZE);
   const botHand = botDeck.splice(0, HAND_SIZE);
 
+  const botLife = difficulty === "EASY" ? 15 : difficulty === "HARD" ? 25 : 20;
+
   return {
     round: 1,
     maxRounds: MAX_ROUNDS,
     energy: 1,
     maxEnergy: MAX_ENERGY,
     playerLife: STARTING_LIFE,
-    botLife: STARTING_LIFE,
+    botLife,
     startingLife: STARTING_LIFE,
+    botStartingLife: botLife,
     playerDeck,
     botDeck,
     playerHand,
@@ -110,6 +116,7 @@ export function createBattle(
     status: "ongoing",
     playerPlayedThisRound: false,
     botPlayedThisRound: false,
+    difficulty,
   };
 }
 
@@ -141,18 +148,74 @@ export function playCard(state: BattleState, side: Side, cardId: string, lane: n
   };
 }
 
-// Simple bot AI: play the highest-attack card it can afford into the first
-// empty lane; otherwise pass.
 export function botChooseAction(state: BattleState): { cardId: string; lane: number } | null {
   if (state.botPlayedThisRound) return null;
   const affordable = state.botHand.filter((c) => c.cost <= state.energy);
   if (affordable.length === 0) return null;
 
-  const emptyLane = state.lanes.findIndex((l) => l.bot === null);
-  if (emptyLane === -1) return null;
+  const difficulty = state.difficulty || "MEDIUM";
 
-  const best = affordable.reduce((a, b) => (b.attack > a.attack ? b : a));
-  return { cardId: best.id, lane: emptyLane };
+  if (difficulty === "EASY") {
+    // 35% chance to pass without action
+    if (Math.random() < 0.35) return null;
+
+    const emptyLanes = state.lanes
+      .map((l, i) => (l.bot === null ? i : -1))
+      .filter((idx) => idx !== -1);
+    if (emptyLanes.length === 0) return null;
+
+    const randomCard = affordable[Math.floor(Math.random() * affordable.length)];
+    const randomLane = emptyLanes[Math.floor(Math.random() * emptyLanes.length)];
+    return { cardId: randomCard.id, lane: randomLane };
+  }
+
+  if (difficulty === "MEDIUM") {
+    const emptyLane = state.lanes.findIndex((l) => l.bot === null);
+    if (emptyLane === -1) return null;
+
+    const best = affordable.reduce((a, b) => (b.attack > a.attack ? b : a));
+    return { cardId: best.id, lane: emptyLane };
+  }
+
+  // HARD difficulty AI
+  let bestAction: { cardId: string; lane: number } | null = null;
+  let bestScore = -999;
+
+  const emptyLanes = state.lanes
+    .map((l, i) => (l.bot === null ? i : -1))
+    .filter((idx) => idx !== -1);
+
+  if (emptyLanes.length === 0) return null;
+
+  for (const card of affordable) {
+    for (const laneIdx of emptyLanes) {
+      const lane = state.lanes[laneIdx];
+      let score = 0;
+
+      if (lane.player) {
+        const killsPlayer = card.attack >= lane.player.health;
+        const survives = card.health > lane.player.attack;
+
+        score += card.attack;
+        if (killsPlayer) score += 10;
+        if (survives) score += 5;
+        // Element counters
+        if (card.element === "WATER" && lane.player.element === "FIRE") score += 5;
+        if (card.element === "FIRE" && lane.player.element === "AIR") score += 5;
+        if (card.element === "AIR" && lane.player.element === "EARTH") score += 5;
+        if (card.element === "EARTH" && lane.player.element === "WATER") score += 5;
+      } else {
+        score += card.attack * 1.5;
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestAction = { cardId: card.id, lane: laneIdx };
+      }
+    }
+  }
+
+  return bestAction;
 }
 
 export function passRound(state: BattleState, side: Side): BattleState {

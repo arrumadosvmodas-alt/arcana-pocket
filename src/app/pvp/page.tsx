@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { authFetch } from "@/lib/api";
 import Link from "next/link";
 
 type Deck = { id: string; name: string };
@@ -25,17 +26,29 @@ function PvPContent() {
   const [opponent, setOpponent] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [inviteId, setInviteId] = useState<string | null>(null);
 
   useEffect(() => {
     loadDecks();
+    // Check if there is an invite in the URL
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const invite = searchParams.get("invite");
+      if (invite) {
+        setInviteId(invite);
+      }
+    }
   }, []);
 
   async function loadDecks() {
     try {
-      const res = await fetch("/api/decks");
+      const res = await authFetch("/api/decks");
       if (res.ok) {
         const data = await res.json();
         setDecks(data);
+        if (data.length > 0) {
+          setSelectedDeck(data[0].id);
+        }
       }
     } catch (err) {
       console.error("Error loading decks:", err);
@@ -52,16 +65,19 @@ function PvPContent() {
     setError("");
 
     try {
-      const res = await fetch("/api/battles/matchmake", {
+      const res = await authFetch("/api/battles/matchmake", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deckId: selectedDeck }),
+        body: JSON.stringify({
+          deckId: selectedDeck,
+          inviteMatchId: inviteId || undefined,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error);
+        setError(data.error || "Erro ao conectar à partida.");
         return;
       }
 
@@ -72,7 +88,6 @@ function PvPContent() {
         setStatus("matched");
       } else {
         setStatus("waiting");
-        // Poll for match
         pollForMatch(data.matchId);
       }
     } catch (err: any) {
@@ -85,7 +100,7 @@ function PvPContent() {
   function pollForMatch(id: string) {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/battles/get?id=${id}`);
+        const res = await authFetch(`/api/battles/get?id=${id}`);
         if (res.ok) {
           const data = await res.json();
           if (data.status === "active") {
@@ -100,28 +115,37 @@ function PvPContent() {
       }
     }, 1000);
 
-    // Stop polling after 5 minutes
     setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
   }
 
+  const inviteLink = typeof window !== "undefined" ? `${window.location.origin}/pvp?invite=${matchId}` : "";
+
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold">Batalha PvP</h1>
+      <h1 className="text-3xl font-black text-white drop-shadow-sm uppercase tracking-wide border-b-4 border-black pb-2">
+        Batalha PvP Online ⚔️
+      </h1>
 
       {error && (
-        <div className="rounded-lg bg-red-900/20 p-4 text-red-400">
-          {error}
+        <div className="rounded-xl border-2 border-red-500 bg-red-950/40 p-4 text-red-200 text-xs font-bold shadow-sm">
+          ⚠️ {error}
+        </div>
+      )}
+
+      {inviteId && status === "selecting" && (
+        <div className="rounded-2xl border-3 border-dashed border-pink-400 bg-pink-950/20 p-4 text-center font-bold text-white text-sm">
+          👋 Você foi convidado para uma partida! Selecione seu deck abaixo para entrar na arena.
         </div>
       )}
 
       {status === "selecting" && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6">
-          <h2 className="mb-4 text-xl font-bold">Selecione seu deck</h2>
+        <div className="sticker-container p-6">
+          <h2 className="mb-4 text-xl font-bold text-yellow-400">Selecione seu deck</h2>
 
           {decks.length === 0 ? (
-            <div className="text-center text-[var(--muted)]">
-              <p>Você não tem decks criados</p>
-              <Link href="/decks" className="text-[var(--accent)] hover:underline">
+            <div className="text-center text-[var(--muted)] font-bold">
+              <p>Você não tem decks criados com 15 cartas.</p>
+              <Link href="/decks" className="text-[var(--accent)] hover:underline block mt-2">
                 Criar deck
               </Link>
             </div>
@@ -132,13 +156,13 @@ function PvPContent() {
                   <button
                     key={deck.id}
                     onClick={() => setSelectedDeck(deck.id)}
-                    className={`w-full rounded-lg border-2 p-4 text-left transition-colors ${
+                    className={`w-full rounded-xl border-3 p-4 text-left font-black transition-all cursor-pointer ${
                       selectedDeck === deck.id
-                        ? "border-[var(--accent)] bg-[var(--accent)]/10"
-                        : "border-[var(--border)] hover:border-[var(--accent)]"
+                        ? "border-[var(--accent)] bg-[var(--accent)]/15 scale-102"
+                        : "border-[var(--border)] hover:border-[var(--accent)] bg-black/20"
                     }`}
                   >
-                    <div className="font-semibold">{deck.name}</div>
+                    <div className="text-white text-base">🃏 {deck.name}</div>
                   </button>
                 ))}
               </div>
@@ -146,9 +170,9 @@ function PvPContent() {
               <button
                 onClick={handleMatchmake}
                 disabled={loading || !selectedDeck}
-                className="w-full rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] py-3 font-semibold text-white disabled:opacity-50"
+                className="w-full btn-sticker py-3.5 text-sm"
               >
-                {loading ? "Procurando adversário..." : "Encontrar Adversário"}
+                {loading ? "Preparando arena..." : inviteId ? "Ingressar na Partida" : "Encontrar Adversário"}
               </button>
             </>
           )}
@@ -156,21 +180,39 @@ function PvPContent() {
       )}
 
       {status === "waiting" && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 text-center">
-          <div className="mb-4 text-2xl">⏳</div>
-          <h2 className="mb-2 text-xl font-bold">Procurando adversário...</h2>
-          <p className="text-[var(--muted)]">Aguarde enquanto buscamos um oponente</p>
+        <div className="sticker-container p-6 text-center flex flex-col items-center gap-4">
+          <div className="text-4xl animate-bounce">⏳</div>
+          <h2 className="text-xl font-black text-pink-400">Aguardando oponente...</h2>
+          <p className="text-sm font-semibold text-[var(--muted)]">Copie o link abaixo e envie para seu amigo entrar:</p>
+          
+          <div className="w-full flex gap-2 items-center bg-black/45 p-3 rounded-xl border border-white/10 mt-2">
+            <input
+              type="text"
+              readOnly
+              value={inviteLink}
+              className="bg-transparent text-xs font-semibold text-white outline-none flex-1 truncate select-all"
+            />
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(inviteLink);
+                alert("Link de convite copiado!");
+              }}
+              className="px-3 py-1 bg-[var(--accent)] text-white font-bold text-xs rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Copiar
+            </button>
+          </div>
         </div>
       )}
 
       {status === "matched" && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 text-center">
-          <div className="mb-4 text-4xl">⚔️</div>
-          <h2 className="mb-2 text-xl font-bold">Adversário encontrado!</h2>
-          <p className="mb-4 text-[var(--muted)]">vs {opponent}</p>
+        <div className="sticker-container p-6 text-center flex flex-col items-center gap-4">
+          <div className="text-5xl animate-pulse">⚔️</div>
+          <h2 className="text-2xl font-black text-emerald-400">Pronto para a Batalha!</h2>
+          <p className="text-sm font-bold text-white">Você está conectado contra o adversário.</p>
           <Link
             href={`/battle?matchId=${matchId}`}
-            className="inline-block rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] px-6 py-3 font-semibold text-white"
+            className="w-full btn-sticker btn-sticker-yellow py-3.5 text-sm block"
           >
             Começar Batalha
           </Link>
@@ -178,7 +220,7 @@ function PvPContent() {
       )}
 
       {status === "finished" && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 text-center">
+        <div className="sticker-container p-6 text-center">
           <h2 className="mb-4 text-xl font-bold">Batalha Finalizada</h2>
           <Link href="/ranking" className="text-[var(--accent)] hover:underline">
             Ver Ranking

@@ -8,6 +8,8 @@ export type CardViewData = {
   cost: number;
   attack: number;
   health: number;
+  upgradeAttack?: number;
+  upgradeHealth?: number;
 };
 
 export function CardView({
@@ -86,12 +88,18 @@ export function CardView({
       {/* Stats Section: Attack & Health */}
       <div className="mt-2.5 flex items-center gap-2 z-10">
         {/* Attack Sticker */}
-        <span className="flex items-center gap-1 rounded-lg border-2 border-white bg-amber-500 px-2 py-0.5 text-xs font-black text-white shadow-sm">
+        <span className={`flex items-center gap-1 rounded-lg border-2 border-white px-2 py-0.5 text-xs font-black text-white shadow-sm ${
+          card.upgradeAttack && card.upgradeAttack > 0 ? "bg-amber-600 ring-2 ring-yellow-300" : "bg-amber-500"
+        }`}>
           ⚔ {card.attack}
+          {card.upgradeAttack && card.upgradeAttack > 0 && <span className="text-[10px] text-yellow-300 ml-0.5">+{card.upgradeAttack}</span>}
         </span>
         {/* Health Sticker */}
-        <span className="flex items-center gap-1 rounded-lg border-2 border-white bg-emerald-500 px-2 py-0.5 text-xs font-black text-white shadow-sm">
+        <span className={`flex items-center gap-1 rounded-lg border-2 border-white px-2 py-0.5 text-xs font-black text-white shadow-sm ${
+          card.upgradeHealth && card.upgradeHealth > 0 ? "bg-emerald-600 ring-2 ring-green-300" : "bg-emerald-500"
+        }`}>
           ♥ {card.health}
+          {card.upgradeHealth && card.upgradeHealth > 0 && <span className="text-[10px] text-green-300 ml-0.5">+{card.upgradeHealth}</span>}
         </span>
       </div>
     </div>

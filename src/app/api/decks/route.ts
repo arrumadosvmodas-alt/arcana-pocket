@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { LOCAL_PROFILE_ID } from "@/lib/player";
+import { getProfileIdFromRequest } from "@/lib/auth";
 import { validateDeckStructure } from "@/lib/engine/rules";
 import { incrementMissionProgress } from "@/lib/missions";
 import type { PlayerCard } from "@prisma/client";
@@ -11,16 +11,44 @@ const deckInputSchema = z.object({
   cards: z.array(z.object({ cardDefinitionId: z.string(), quantity: z.number().int().positive() })),
 });
 
-export async function GET() {
-  const decks = await prisma.deck.findMany({
-    where: { profileId: LOCAL_PROFILE_ID },
-    include: { deckCards: { include: { cardDefinition: true } } },
-    orderBy: { createdAt: "desc" },
-  });
-  return NextResponse.json(decks);
+export async function GET(req: Request) {
+  const profileId = await getProfileIdFromRequest(req);
+
+  const [decks, playerCards] = await Promise.all([
+    prisma.deck.findMany({
+      where: { profileId },
+      include: { deckCards: { include: { cardDefinition: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.playerCard.findMany({ where: { profileId } }),
+  ]);
+
+  const pcMap = new Map(playerCards.map((pc: PlayerCard) => [pc.cardDefinitionId, pc]));
+
+  const mappedDecks = decks.map((deck) => ({
+    ...deck,
+    deckCards: deck.deckCards.map((dc) => {
+      const pc = pcMap.get(dc.cardDefinitionId);
+      const upgradeAttack = pc?.upgradeAttack ?? 0;
+      const upgradeHealth = pc?.upgradeHealth ?? 0;
+      return {
+        ...dc,
+        cardDefinition: {
+          ...dc.cardDefinition,
+          attack: dc.cardDefinition.attack + upgradeAttack,
+          health: dc.cardDefinition.health + upgradeHealth,
+          upgradeAttack,
+          upgradeHealth,
+        },
+      };
+    }),
+  }));
+
+  return NextResponse.json(mappedDecks);
 }
 
 export async function POST(req: Request) {
+  const profileId = await getProfileIdFromRequest(req);
   const body = deckInputSchema.parse(await req.json());
 
   const structure = validateDeckStructure(body.cards);
@@ -29,7 +57,7 @@ export async function POST(req: Request) {
   }
 
   const ownership = await prisma.playerCard.findMany({
-    where: { profileId: LOCAL_PROFILE_ID, cardDefinitionId: { in: body.cards.map((c) => c.cardDefinitionId) } },
+    where: { profileId, cardDefinitionId: { in: body.cards.map((c) => c.cardDefinitionId) } },
   });
   const ownedById = new Map(ownership.map((o: PlayerCard) => [o.cardDefinitionId, o.quantity]));
 
@@ -45,7 +73,7 @@ export async function POST(req: Request) {
 
   const deck = await prisma.deck.create({
     data: {
-      profileId: LOCAL_PROFILE_ID,
+      profileId,
       name: body.name,
       deckCards: { create: body.cards.map((c) => ({ cardDefinitionId: c.cardDefinitionId, quantity: c.quantity })) },
     },
@@ -53,12 +81,35 @@ export async function POST(req: Request) {
   });
 
   // Track mission progress
-  await incrementMissionProgress(LOCAL_PROFILE_ID, "CREATE_DECKS", 1);
+  await incrementMissionProgress(profileId, "CREATE_DECKS", 1);
 
   const elements = new Set(deck.deckCards.map((dc) => dc.cardDefinition.element));
   if (elements.size === 1) {
-    await incrementMissionProgress(LOCAL_PROFILE_ID, "MONO_DECK", 1);
+    await incrementMissionProgress(profileId, "MONO_DECK", 1);
   }
 
-  return NextResponse.json(deck, { status: 201 });
+  // Get upgrades for response mapping
+  const playerCards = await prisma.playerCard.findMany({ where: { profileId } });
+  const pcMap = new Map(playerCards.map((pc: PlayerCard) => [pc.cardDefinitionId, pc]));
+
+  const mappedDeck = {
+    ...deck,
+    deckCards: deck.deckCards.map((dc) => {
+      const pc = pcMap.get(dc.cardDefinitionId);
+      const upgradeAttack = pc?.upgradeAttack ?? 0;
+      const upgradeHealth = pc?.upgradeHealth ?? 0;
+      return {
+        ...dc,
+        cardDefinition: {
+          ...dc.cardDefinition,
+          attack: dc.cardDefinition.attack + upgradeAttack,
+          health: dc.cardDefinition.health + upgradeHealth,
+          upgradeAttack,
+          upgradeHealth,
+        },
+      };
+    }),
+  };
+
+  return NextResponse.json(mappedDeck, { status: 201 });
 }

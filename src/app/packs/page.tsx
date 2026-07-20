@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CardView, CardViewData } from "@/components/CardView";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { authFetch } from "@/lib/api";
 
 type Profile = { stamina: number; maxStamina: number; coins: number; nextPackAt: string | null };
 
@@ -13,7 +14,7 @@ export default function PacksPage() {
   const [error, setError] = useState<string | null>(null);
 
   async function loadProfile() {
-    const res = await fetch("/api/profile");
+    const res = await authFetch("/api/profile");
     if (res.ok) setProfile(await res.json());
   }
 
@@ -26,7 +27,7 @@ export default function PacksPage() {
     setError(null);
     setRevealed(null);
     try {
-      const res = await fetch("/api/packs/open", { method: "POST" });
+      const res = await authFetch("/api/packs/open", { method: "POST" });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Erro ao abrir pacote.");

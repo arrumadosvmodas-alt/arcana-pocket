@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { DeckBuilder, OwnedCard } from "@/components/DeckBuilder";
 import { CardView } from "@/components/CardView";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { authFetch } from "@/lib/api";
 
 type DeckCard = { quantity: number; cardDefinition: OwnedCard };
 type Deck = { id: string; name: string; deckCards: DeckCard[] };
@@ -16,7 +17,7 @@ export default function DecksPage() {
   const [error, setError] = useState<string | null>(null);
 
   async function loadAll() {
-    const [cardsRes, decksRes] = await Promise.all([fetch("/api/cards"), fetch("/api/decks")]);
+    const [cardsRes, decksRes] = await Promise.all([authFetch("/api/cards"), authFetch("/api/decks")]);
     const cards = await cardsRes.json();
     const deckList = await decksRes.json();
     setOwnedCards(cards.filter((c: OwnedCard) => c.owned > 0));
@@ -31,7 +32,7 @@ export default function DecksPage() {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch("/api/decks", {
+      const res = await authFetch("/api/decks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, cards: entries }),
@@ -49,7 +50,7 @@ export default function DecksPage() {
   }
 
   async function handleDelete(id: string) {
-    await fetch(`/api/decks/${id}`, { method: "DELETE" });
+    await authFetch(`/api/decks/${id}`, { method: "DELETE" });
     await loadAll();
   }
 

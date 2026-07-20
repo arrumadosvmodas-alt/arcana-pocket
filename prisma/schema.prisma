@@ -45,6 +45,8 @@ model PlayerCard {
   profileId        String
   cardDefinitionId String
   quantity         Int      @default(0)
+  upgradeAttack    Int      @default(0)
+  upgradeHealth    Int      @default(0)
 
   profile        Profile        @relation(fields: [profileId], references: [id])
   cardDefinition CardDefinition @relation(fields: [cardDefinitionId], references: [id])

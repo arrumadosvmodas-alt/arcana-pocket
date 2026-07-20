@@ -5,6 +5,7 @@ import { BattleBoard } from "@/components/BattleBoard";
 import { BattleCardSource, BattleState, createBattle } from "@/lib/engine/battle";
 import { DECK_SIZE } from "@/lib/engine/cards";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { authFetch } from "@/lib/api";
 
 type DeckCard = { quantity: number; cardDefinition: BattleCardSource };
 type Deck = { id: string; name: string; deckCards: DeckCard[] };
@@ -14,9 +15,10 @@ export default function BattlePage() {
   const [catalog, setCatalog] = useState<BattleCardSource[]>([]);
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [battle, setBattle] = useState<BattleState | null>(null);
+  const [difficulty, setDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("MEDIUM");
 
   useEffect(() => {
-    Promise.all([fetch("/api/decks").then((r) => r.json()), fetch("/api/cards").then((r) => r.json())]).then(
+    Promise.all([authFetch("/api/decks").then((r) => r.json()), authFetch("/api/cards").then((r) => r.json())]).then(
       ([deckList, cards]) => {
         setDecks(deckList);
         setCatalog(cards);
@@ -40,7 +42,7 @@ export default function BattlePage() {
     const playerCards = deck.deckCards.map((dc) => ({ card: dc.cardDefinition, quantity: dc.quantity }));
     const botCards = buildBotDeck();
     const seed = `${deck.id}-${Date.now()}`;
-    setBattle(createBattle(playerCards, botCards, seed));
+    setBattle(createBattle(playerCards, botCards, seed, difficulty));
   }
 
   if (battle) {
@@ -83,7 +85,19 @@ export default function BattlePage() {
                 </option>
               ))}
             </select>
-            <button onClick={startBattle} className="rounded-full bg-[var(--accent)] py-2 text-sm font-semibold text-white">
+
+            <label className="text-sm text-[var(--muted)] mt-2">Dificuldade do Bot</label>
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value as any)}
+              className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+            >
+              <option value="EASY">Fácil (Bot com 15 HP, mais lento)</option>
+              <option value="MEDIUM">Médio (Bot com 20 HP, padrão)</option>
+              <option value="HARD">Difícil (Bot com 25 HP, IA esperta)</option>
+            </select>
+
+            <button onClick={startBattle} className="rounded-full bg-[var(--accent)] py-2 text-sm font-semibold text-white mt-2">
               Iniciar batalha
             </button>
           </>
