@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getUserIdFromAuthHeader } from "@/lib/auth-server";
+import { incrementMissionProgress, setMissionProgress } from "@/lib/missions";
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
     const loserId =
       winnerId === match.player1Id ? match.player2Id! : match.player1Id;
 
-    await Promise.all([
+    const [updatedWinnerRating] = await Promise.all([
       // Update winner rating
       prisma.playerRating.upsert({
         where: { profileId: winnerId },
@@ -107,10 +108,12 @@ export async function POST(req: Request) {
           profileId: winnerId,
           rating: 1200 + eloChange,
           wins: 1,
+          winStreak: 1,
         },
         update: {
           rating: { increment: eloChange },
           wins: { increment: 1 },
+          winStreak: { increment: 1 },
         },
       }),
       // Update loser rating
@@ -120,13 +123,20 @@ export async function POST(req: Request) {
           profileId: loserId,
           rating: 1200 - eloChange,
           losses: 1,
+          winStreak: 0,
         },
         update: {
           rating: { decrement: eloChange },
           losses: { increment: 1 },
+          winStreak: 0,
         },
       }),
     ]);
+
+    // Track mission progress
+    await incrementMissionProgress(winnerId, "WIN_PVP", 1);
+    await setMissionProgress(winnerId, "WIN_STREAK", updatedWinnerRating.winStreak);
+    await setMissionProgress(loserId, "WIN_STREAK", 0);
 
     return NextResponse.json({
       battleId: updatedMatch.id,

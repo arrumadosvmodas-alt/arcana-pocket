@@ -55,5 +55,10 @@ export async function POST(req: Request) {
   // Track mission progress
   await incrementMissionProgress(LOCAL_PROFILE_ID, "CREATE_DECKS", 1);
 
+  const elements = new Set(deck.deckCards.map((dc) => dc.cardDefinition.element));
+  if (elements.size === 1) {
+    await incrementMissionProgress(LOCAL_PROFILE_ID, "MONO_DECK", 1);
+  }
+
   return NextResponse.json(deck, { status: 201 });
 }

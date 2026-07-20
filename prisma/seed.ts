@@ -131,6 +131,11 @@ async function main() {
     { title: "Colecionador", description: "Tenha 50 cartas diferentes", target: 50, coinsReward: 200, gemsReward: 10 },
     { title: "Construtor de Deck", description: "Crie 2 decks", target: 2, coinsReward: 100, gemsReward: 5 },
     { title: "Abra 3 Pacotes", description: "Abra 3 pacotes grátis", target: 3, coinsReward: 100, gemsReward: 0 },
+    { title: "Vitorioso", description: "Vença 3 partidas de PvP ranqueado", target: 3, coinsReward: 200, gemsReward: 15 },
+    { title: "Sequência Perfeita", description: "Vença 3 partidas de PvP seguidas", target: 3, coinsReward: 250, gemsReward: 20 },
+    { title: "Investidor", description: "Gaste 100 gemas na loja", target: 100, coinsReward: 150, gemsReward: 0 },
+    { title: "Mono Elemento", description: "Monte um deck com cartas de um único elemento", target: 1, coinsReward: 150, gemsReward: 10 },
+    { title: "Grande Colecionador", description: "Tenha 15 cartas raras ou épicas diferentes", target: 15, coinsReward: 300, gemsReward: 25 },
   ];
   await prisma.mission.createMany({ data: missions });
 

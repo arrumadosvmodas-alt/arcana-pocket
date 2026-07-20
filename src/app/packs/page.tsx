@@ -61,7 +61,7 @@ export default function PacksPage() {
       {revealed && (
         <div className="grid w-full grid-cols-3 gap-3 sm:grid-cols-5">
           {revealed.map((card, i) => (
-            <div key={i} className="animate-[fadeIn_0.4s_ease]" style={{ animationDelay: `${i * 120}ms` }}>
+            <div key={i} className="card-reveal" style={{ animationDelay: `${i * 120}ms`, animationFillMode: "backwards" }}>
               <CardView card={card} size="sm" />
             </div>
           ))}

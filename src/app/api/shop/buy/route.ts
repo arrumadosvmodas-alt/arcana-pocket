@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
 import { LOCAL_PROFILE_ID } from "@/lib/player";
 import { drawPack } from "@/lib/engine/packs";
+import { incrementMissionProgress } from "@/lib/missions";
 import { z } from "zod";
 import type { CardDefinition } from "@prisma/client";
 
@@ -65,8 +66,11 @@ export async function POST(req: Request) {
       const cardsById = new Map(cards.map((c: CardDefinition) => [c.id, c]));
       const orderedCards = uniqueDrawn.map((id) => cardsById.get(id)!);
 
-      return { cards: orderedCards, gemsRemaining: wallet.gems - pkg.gemPrice };
+      return { cards: orderedCards, gemsRemaining: wallet.gems - pkg.gemPrice, gemsSpent: pkg.gemPrice };
     });
+
+    // Track mission progress
+    await incrementMissionProgress(LOCAL_PROFILE_ID, "SPEND_GEMS", result.gemsSpent);
 
     return NextResponse.json(result);
   } catch (err) {

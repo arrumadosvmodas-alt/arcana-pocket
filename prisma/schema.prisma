@@ -162,6 +162,7 @@ model PlayerRating {
   rating    Int      @default(1200) // Elo starting point
   wins      Int      @default(0)
   losses    Int      @default(0)
+  winStreak Int      @default(0)
   updatedAt DateTime @updatedAt
 
   profile Profile @relation(fields: [profileId], references: [id])
