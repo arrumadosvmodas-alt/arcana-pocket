@@ -13,6 +13,7 @@ datasource db {
 model Profile {
   id          String   @id @default(cuid())
   displayName String
+  role        String   @default("USER")
   createdAt   DateTime @default(now())
 
   wallet           Wallet?

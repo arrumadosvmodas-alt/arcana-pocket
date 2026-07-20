@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { authFetch } from "@/lib/api";
 
 const LINKS = [
   { href: "/", label: "Início" },
@@ -24,6 +25,26 @@ export function NavBar() {
   const { session, signOut } = useAuth();
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      authFetch("/api/profile")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.role === "ADMIN") {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
+        })
+        .catch(() => {
+          setIsAdmin(false);
+        });
+    } else {
+      setIsAdmin(false);
+    }
+  }, [session]);
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -36,6 +57,11 @@ export function NavBar() {
       setSigningOut(false);
     }
   }
+
+  const visibleLinks = LINKS.filter((link) => {
+    if (link.href === "/admin") return isAdmin;
+    return true;
+  });
 
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0c0f2e]/60 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
@@ -71,7 +97,7 @@ export function NavBar() {
       
       {/* Navigation Links */}
       <nav className="mx-auto flex max-w-3xl gap-2 overflow-x-auto px-4 pb-3 scrollbar-none">
-        {LINKS.map((link) => {
+        {visibleLinks.map((link) => {
           const active = pathname === link.href;
           return (
             <Link

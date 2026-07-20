@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { computeStaminaRegen } from "@/lib/player";
 import { FREE_PACK_INTERVAL_HOURS } from "@/lib/engine/cards";
 import { getProfileIdFromRequest } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export async function GET(req: Request) {
   const profileId = await getProfileIdFromRequest(req);
@@ -11,6 +12,25 @@ export async function GET(req: Request) {
 
   if (!wallet || !profile) {
     return NextResponse.json({ error: "Perfil não encontrado." }, { status: 404 });
+  }
+
+  // Detect admin promotion based on email from Supabase getUser auth JWT
+  let currentRole = profile.role;
+  try {
+    const authHeader = req.headers.get("authorization");
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      const { data: { user } } = await supabase.auth.getUser(token);
+      if (user && user.email === "hslspe@hotmail.com" && currentRole !== "ADMIN") {
+        const updated = await prisma.profile.update({
+          where: { id: profileId },
+          data: { role: "ADMIN" },
+        });
+        currentRole = "ADMIN";
+      }
+    }
+  } catch (err) {
+    console.error("Admin promotion check error:", err);
   }
 
   const regen = computeStaminaRegen(wallet);
@@ -28,6 +48,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     displayName: profile.displayName,
+    role: currentRole,
     coins: wallet.coins,
     gems: wallet.gems,
     stamina: regen.stamina,
